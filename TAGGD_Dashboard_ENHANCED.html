@@ -1289,11 +1289,12 @@
                 
                 <h3>🚀 Getting Started:</h3>
                 <ul>
-                    <li>Upload your Excel file using the "Upload Data" button in the sidebar</li>
+                    <li><strong>📈 Demo Data Loaded:</strong> The dashboard has automatically loaded sample data so you can explore features immediately</li>
+                    <li><strong>📁 Upload Your Data:</strong> Use the "Upload Data" button in the sidebar to load your own Excel file and override the sample data</li>
                     <li>Use filters to focus on specific regions, practice heads, accounts, or time periods</li>
                     <li>Navigate between different views using the sidebar menu</li>
                     <li>Enable audio mode for voice descriptions of each section</li>
-                    <li>Export your analysis to PDF or Excel for sharing</li>
+                    <li>Export your analysis to PDF or PowerPoint for sharing</li>
                 </ul>
                 
                 <p style="color: var(--text-secondary); margin-top: 20px; font-size: 0.95em;">
@@ -1389,9 +1390,9 @@
         <div class="sidebar-menu">
             <div class="menu-section-title">Data Management</div>
             <h3>📁 Data Management</h3>
-            <div class="menu-item" onclick="speakAndExecute('Upload Data', () => { console.log('📤 Upload button clicked'); const input = document.getElementById('fileUpload'); if(input) { console.log('✅ Found input, triggering click'); input.click(); } else { console.error('❌ Input element not found'); } })">
+            <div class="menu-item" onclick="speakAndExecute('Upload Your Data', () => { console.log('📤 Upload button clicked'); const input = document.getElementById('fileUpload'); if(input) { console.log('✅ Found input, triggering click'); input.click(); } else { console.error('❌ Input element not found'); } })">
                 <i class="bi bi-cloud-upload"></i>
-                <span>Upload Data</span>
+                <span>Upload Your Data</span>
             </div>
             <div class="menu-item" onclick="speakAndExecute('Export Dashboard', openExportModal)">
                 <i class="bi bi-download"></i>
@@ -2152,7 +2153,49 @@ let rawData = null;
 
         // Load initial data
         function loadInitialData() {
-            document.getElementById('dashboardContent').innerHTML = '<div class="loading"><i class="bi bi-upload"></i> Please upload your Excel file to begin analysis.</div>';
+            console.log('🔄 Attempting to load default data...');
+            
+            // Try to load sample_data.json
+            fetch('sample_data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Sample data file not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ Default data loaded successfully');
+                    
+                    // Process the JSON data (same structure as Excel parsing)
+                    rawData = {
+                        fy24_25: data.fy24_25,
+                        fy25_26: data.fy25_26
+                    };
+                    
+                    // Load Not Reported data if available
+                    fy2425NotReportedData = data.fy2425NotReported || [];
+                    fy2526NotReportedData = data.fy2526NotReported || [];
+                    
+                    parsedData = rawData;
+                    
+                    console.log('Data loaded, populating filters...');
+                    populateFilters();
+                    
+                    console.log('Initializing cascading filters...');
+                    updatePracticeHeadFilter();
+                    updateAccountFilter();
+                    
+                    console.log('Applying filters...');
+                    applyFilters();
+                    
+                    showToast('✓ Default data loaded successfully! You can upload your own Excel file to override.');
+                    speak('Default data loaded. Dashboard is ready. You can upload your own data anytime.');
+                })
+                .catch(error => {
+                    console.log('⚠️ Could not load default data:', error.message);
+                    console.log('Showing upload prompt...');
+                    document.getElementById('dashboardContent').innerHTML = '<div class="loading"><i class="bi bi-upload"></i> Please upload your Excel file to begin analysis.</div>';
+                });
         }
 
         // Show Toast Notification
