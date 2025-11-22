@@ -5624,18 +5624,27 @@ function showView(view) {
                 
                     // Enhanced PDF capture with better quality settings
                     const canvas = await html2canvas(contentArea, {
-                        scale: 4,  // Increased to 4x resolution for maximum clarity
+                        scale: 2,  // 2x resolution for balance between quality and file size
                         backgroundColor: '#ffffff',
-                        logging: false,
+                        logging: true,  // Enable logging to debug issues
                         useCORS: true,
                         allowTaint: true,
-                        scrollY: -window.scrollY,
-                        scrollX: -window.scrollX,
+                        scrollY: 0,  // Start from top
+                        scrollX: 0,
+                        windowWidth: contentArea.scrollWidth,
                         windowHeight: contentArea.scrollHeight,
                         width: contentArea.scrollWidth,
                         height: contentArea.scrollHeight,
                         imageTimeout: 0,
-                        removeContainer: false
+                        removeContainer: false,
+                        onclone: (clonedDoc) => {
+                            // Ensure all images and styles are loaded in the cloned document
+                            const clonedContent = clonedDoc.getElementById('dashboardContent');
+                            if (clonedContent) {
+                                clonedContent.style.transform = 'none';
+                                clonedContent.style.overflow = 'visible';
+                            }
+                        }
                     });
                     
                     // Use PNG instead of JPEG for better quality (no compression artifacts)
@@ -5850,6 +5859,9 @@ function showView(view) {
 
         async function exportToPPTActual() {
             try {
+                console.log('=== PPT Export Started ===');
+                console.log('Current view:', currentView);
+                console.log('Filtered data:', filteredData);
                 showToast('🔄 Generating PowerPoint presentation...', 'info');
                 
                 // Create new presentation with proper PowerPoint 2017+ format
@@ -5955,6 +5967,16 @@ function showView(view) {
                 // Calculate metrics based on current view
                 const fy24Metrics = calculateOverallMetrics(filteredData.fy24_25, 'fy24_25');
                 const fy25Metrics = calculateOverallMetrics(filteredData.fy25_26, 'fy25_26');
+                
+                // Ensure metrics have default values if undefined
+                fy24Metrics.overall = fy24Metrics.compliance || fy24Metrics.overall || 0;
+                fy25Metrics.overall = fy25Metrics.compliance || fy25Metrics.overall || 0;
+                fy24Metrics.totalTickets = fy24Metrics.total || fy24Metrics.totalTickets || 0;
+                fy25Metrics.totalTickets = fy25Metrics.total || fy25Metrics.totalTickets || 0;
+                fy24Metrics.metTickets = fy24Metrics.totalMet || fy24Metrics.metTickets || 0;
+                fy25Metrics.metTickets = fy25Metrics.totalMet || fy25Metrics.metTickets || 0;
+                fy24Metrics.notMetTickets = fy24Metrics.totalNotMet || fy24Metrics.notMetTickets || 0;
+                fy25Metrics.notMetTickets = fy25Metrics.totalNotMet || fy25Metrics.notMetTickets || 0;
                 
                 // Create metrics table
                 const metricsTableData = [
@@ -6081,8 +6103,14 @@ function showView(view) {
                 closeExportModal();
                 
             } catch (error) {
-                console.error('PPT generation error:', error);
-                alert('Error generating PowerPoint. Please try again.\n\nError: ' + error.message);
+                console.error('=== PPT Export Error ===');
+                console.error('Error type:', error.name);
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
+                console.error('PptxGenJS available:', typeof PptxGenJS !== 'undefined');
+                
+                const errorMsg = `PowerPoint export failed!\n\nError: ${error.message}\n\nPlease check:\n1. Browser console for detailed errors\n2. Data is loaded\n3. No popup blocker is active`;
+                alert(errorMsg);
                 showToast('❌ PowerPoint export failed', 'error');
             }
         }
@@ -7116,16 +7144,13 @@ function showView(view) {
                     plugins: {
                         legend: { display: false },
                         datalabels: {
-                            anchor: 'end',
-                            align: 'right',
-                            color: '#000',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: 4,
-                            padding: { top: 4, bottom: 4, left: 6, right: 6 },
-                            font: { size: 13, weight: 'bold', family: 'Inter' },
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#fff',
+                            font: { size: 12, weight: 'bold', family: 'Inter' },
                             formatter: (value, context) => {
                                 const percentage = ((value / totalCount) * 100).toFixed(1);
-                                return `${value} (${percentage}%)`;
+                                return `${value}\n(${percentage}%)`;
                             }
                         },
                         tooltip: {
@@ -7193,16 +7218,18 @@ function showView(view) {
                         legend: { display: false },
                         datalabels: {
                             anchor: 'end',
-                            align: 'top',
+                            align: 'end',
+                            offset: -5,
                             color: '#000',
                             backgroundColor: 'rgba(255, 255, 255, 0.95)',
                             borderRadius: 6,
-                            padding: { top: 6, bottom: 6, left: 8, right: 8 },
-                            font: { size: 14, weight: 'bold', family: 'Inter' },
+                            padding: { top: 4, bottom: 4, left: 6, right: 6 },
+                            font: { size: 12, weight: 'bold', family: 'Inter' },
                             formatter: (value, context) => {
                                 const percentage = ((value / totalCount) * 100).toFixed(1);
                                 return `${value} (${percentage}%)`;
-                            }
+                            },
+                            clip: false
                         },
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.85)',
@@ -7269,16 +7296,18 @@ function showView(view) {
                         legend: { display: false },
                         datalabels: {
                             anchor: 'end',
-                            align: 'top',
+                            align: 'end',
+                            offset: -5,
                             color: '#000',
                             backgroundColor: 'rgba(255, 255, 255, 0.95)',
                             borderRadius: 6,
-                            padding: { top: 6, bottom: 6, left: 8, right: 8 },
-                            font: { size: 14, weight: 'bold', family: 'Inter' },
+                            padding: { top: 4, bottom: 4, left: 6, right: 6 },
+                            font: { size: 12, weight: 'bold', family: 'Inter' },
                             formatter: (value, context) => {
                                 const percentage = ((value / totalCount) * 100).toFixed(1);
                                 return `${value} (${percentage}%)`;
-                            }
+                            },
+                            clip: false
                         },
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.85)',
