@@ -10,7 +10,14 @@ This is your enhanced TAGGD Executive SLA Performance Dashboard with all request
 
 ## ✨ New Features
 
-### 1. ⭐ Executive View (NEW!)
+### 0. 🚀 Automatic Data Loading (NEWEST!)
+- Dashboard automatically loads sample data on page load
+- No file upload required to explore features
+- Perfect for sharing via URL - users can view immediately
+- Upload your own Excel file to override sample data
+- Data updates via simple JSON file push to GitHub
+
+### 1. ⭐ Executive View
 A brand new strategic overview showing:
 - Year-over-Year SLA% comparison
 - Top 5 best performing accounts
@@ -51,14 +58,21 @@ A brand new strategic overview showing:
 ## 🚀 How to Use
 
 ### Step 1: Open the Dashboard
-Simply open `TAGGD_Dashboard_ENHANCED.html` in your web browser.
+Simply open `TAGGD_Dashboard_ENHANCED.html` in your web browser or visit the live URL (see Deployment section below).
 
-### Step 2: Upload Your Data
-Click "Upload Data" in the sidebar and select your Excel file with:
+**NEW: Automatic Demo Data Loading!**
+- Dashboard now automatically loads sample data on startup
+- No need to upload files to explore features
+- Perfect for sharing with others via URL
+
+### Step 2: Upload Your Data (Optional)
+To use your own data, click "Upload Your Data" in the sidebar and select your Excel file with:
 - **FY 24-25 Summary** sheet
 - **FY 25-26 Summary** sheet
 - **FY24-25 Not Reported** sheet (optional)
 - **FY25-26 Not Reported** sheet (optional)
+
+Your uploaded data will override the sample data.
 
 ### Step 3: Explore the Views
 Navigate between different views using the sidebar:
@@ -151,9 +165,49 @@ Ensure you've clicked "Apply Filters" after making selections.
 - Try a different browser (Chrome recommended)
 - Check console for errors (F12)
 
+## 🌐 Deployment & Sharing
+
+### Live URL Setup
+The dashboard can be deployed to a public URL so others can access it without downloading files:
+
+**Option 1: GitHub Pages (Easiest)**
+1. Go to your GitHub repository settings
+2. Enable GitHub Pages on the `main` branch
+3. Your URL: `https://YOUR_USERNAME.github.io/SLA-DASHBOARD/`
+4. Share this link with your team!
+
+**Option 2: Cloudflare Pages (Fastest)**
+See `DEPLOYMENT_GUIDE.md` for detailed instructions.
+
+### Updating Data for All Users
+When the dashboard is live, you can update data for everyone:
+
+1. **Convert your Excel to JSON:**
+   ```bash
+   python excel_to_json.py your_data.xlsx
+   ```
+
+2. **Push to GitHub:**
+   ```bash
+   git add sample_data.json
+   git commit -m "Update dashboard data"
+   git push origin main
+   ```
+
+3. **All users see the new data** when they refresh!
+
+See `DATA_UPDATE_GUIDE.md` for comprehensive instructions.
+
 ## 📝 Version History
 
-### v8 Enhanced (Current)
+### v9 Auto-Load (Current)
+- **NEW:** Automatic data loading from JSON
+- Dashboard loads sample data on startup
+- No file upload required for demo/sharing
+- Added data conversion script
+- Users can share live URL with team
+
+### v8 Enhanced
 - Added Executive View
 - Enhanced Not Reported View
 - Fixed Quarterly Q3 calculation
