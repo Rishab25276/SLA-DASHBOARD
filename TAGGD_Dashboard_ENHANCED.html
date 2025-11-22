@@ -3718,9 +3718,13 @@ function showView(view) {
                             datalabels: {
                                 anchor: 'end',
                                 align: 'right',
-                                color: '#fff',
+                                color: '#000',
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                borderRadius: 4,
+                                padding: { top: 4, bottom: 4, left: 6, right: 6 },
                                 font: { weight: 'bold', size: 12 },
-                                formatter: (value) => '+' + value.toFixed(1) + '%'
+                                formatter: (value) => '+' + value.toFixed(1) + '%',
+                                display: true
                             }
                         },
                         scales: {
@@ -3754,9 +3758,13 @@ function showView(view) {
                             datalabels: {
                                 anchor: 'end',
                                 align: 'right',
-                                color: '#fff',
+                                color: '#000',
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                borderRadius: 4,
+                                padding: { top: 4, bottom: 4, left: 6, right: 6 },
                                 font: { weight: 'bold', size: 12 },
-                                formatter: (value) => '-' + value.toFixed(1) + '%'
+                                formatter: (value) => '-' + value.toFixed(1) + '%',
+                                display: true
                             }
                         },
                         scales: {
@@ -4200,10 +4208,10 @@ function showView(view) {
             charts.yearly = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['FY 24-25 Compliance', 'FY 25-26 Compliance'],
+                    labels: ['FY 24-25', 'FY 25-26'],
                     datasets: [{
                         data: [fy24Metrics.compliance, fy25Metrics.compliance],
-                        backgroundColor: ['#D3D3D3', '#FFB84D'],
+                        backgroundColor: ['#9CA3AF', '#FF6B35'],
                         borderWidth: 3,
                         borderColor: '#fff'
                     }]
@@ -5862,6 +5870,17 @@ function showView(view) {
                 console.log('=== PPT Export Started ===');
                 console.log('Current view:', currentView);
                 console.log('Filtered data:', filteredData);
+                
+                // Validate data is loaded
+                if (!filteredData || !filteredData.fy24_25 || !filteredData.fy25_26) {
+                    throw new Error('No data loaded. Please upload Excel file first.');
+                }
+                
+                // Validate PptxGenJS is loaded
+                if (typeof PptxGenJS === 'undefined') {
+                    throw new Error('PptxGenJS library not loaded. Please refresh the page.');
+                }
+                
                 showToast('🔄 Generating PowerPoint presentation...', 'info');
                 
                 // Create new presentation with proper PowerPoint 2017+ format
@@ -5996,7 +6015,7 @@ function showView(view) {
                         'Total Tickets',
                         `${fy24Metrics.totalTickets.toLocaleString()}`,
                         `${fy25Metrics.totalTickets.toLocaleString()}`,
-                        `${((fy25Metrics.totalTickets - fy24Metrics.totalTickets) / fy24Metrics.totalTickets * 100).toFixed(1)}%`
+                        fy24Metrics.totalTickets > 0 ? `${((fy25Metrics.totalTickets - fy24Metrics.totalTickets) / fy24Metrics.totalTickets * 100).toFixed(1)}%` : 'N/A'
                     ],
                     [
                         'Tickets Met SLA',
@@ -7144,14 +7163,18 @@ function showView(view) {
                     plugins: {
                         legend: { display: false },
                         datalabels: {
-                            anchor: 'center',
-                            align: 'center',
-                            color: '#fff',
-                            font: { size: 12, weight: 'bold', family: 'Inter' },
+                            anchor: 'end',
+                            align: 'right',
+                            color: '#000',
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: 4,
+                            padding: { top: 4, bottom: 4, left: 6, right: 6 },
+                            font: { size: 11, weight: 'bold', family: 'Inter' },
                             formatter: (value, context) => {
                                 const percentage = ((value / totalCount) * 100).toFixed(1);
-                                return `${value}\n(${percentage}%)`;
-                            }
+                                return `${value} (${percentage}%)`;
+                            },
+                            display: true
                         },
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.85)',
