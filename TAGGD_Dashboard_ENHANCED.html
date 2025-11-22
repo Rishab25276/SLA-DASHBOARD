@@ -665,16 +665,79 @@
             color: var(--primary-color);
         }
 
+        /* Mobile Menu Toggle Button */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1100;
+            background: linear-gradient(135deg, #3a1c71 0%, #d76d77 50%, #ffaf7b 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(58, 28, 113, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .mobile-menu-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-menu-toggle.active i {
+            transform: rotate(90deg);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             .sidebar {
+                width: 280px;
+                position: fixed;
+                left: -280px;
+                top: 0;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+            }
+
+            .sidebar.mobile-open {
+                left: 0;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
                 width: 100%;
-                position: relative;
-                height: auto;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
+            }
+
+            .mobile-overlay.active {
+                display: block;
             }
             
             .main-content {
                 margin-left: 0;
+                padding-top: 80px;
             }
             
             .dashboard-grid {
@@ -687,6 +750,19 @@
 
             .comparison-widget {
                 grid-template-columns: 1fr;
+            }
+
+            .sidebar-header h2 {
+                font-size: 1.4em;
+            }
+
+            .menu-item {
+                padding: 14px 16px;
+                margin: 4px 8px;
+            }
+
+            .menu-item span {
+                font-size: 0.9em;
             }
         }
 
@@ -1266,6 +1342,14 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
@@ -2051,6 +2135,11 @@ let rawData = null;
             if (typeof callback === 'function') {
                 callback();
             }
+            
+            // Auto-close mobile menu after action
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
         }
 
         // Theme Management
@@ -2095,6 +2184,60 @@ let rawData = null;
                 modal.style.display = 'none';
                 // Remember that user has seen the welcome
                 localStorage.setItem('taggd_welcome_shown', 'true');
+            }
+        }
+        
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            
+            if (sidebar && overlay && toggleBtn) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+                toggleBtn.classList.toggle('active');
+                
+                // Change icon
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    if (sidebar.classList.contains('mobile-open')) {
+                        icon.className = 'bi bi-x-lg';
+                    } else {
+                        icon.className = 'bi bi-list';
+                    }
+                }
+            }
+        }
+        
+        function closeMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            
+            if (sidebar && overlay && toggleBtn) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                toggleBtn.classList.remove('active');
+                
+                // Reset icon
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = 'bi bi-list';
+                }
+            }
+        }
+        
+        // Close mobile menu when a menu item is clicked
+        function handleMenuItemClick(callback) {
+            // Execute the callback (navigate to view)
+            if (typeof callback === 'function') {
+                callback();
+            }
+            
+            // Close mobile menu on smaller screens
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
             }
         }
         
