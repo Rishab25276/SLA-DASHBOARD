@@ -1270,7 +1270,8 @@
     <div class="toast" id="toast"></div>
 
     <!-- Welcome Modal -->
-    <div id="welcomeModal" class="welcome-modal">
+    <!-- Welcome modal disabled - users can access "About Dashboard" view instead -->
+    <div id="welcomeModal" class="welcome-modal" style="display: none !important;">
         <div class="welcome-modal-content">
             <div class="welcome-modal-header">
                 <h2>🎯 Welcome to TAGGD SLA Performance Dashboard</h2>
@@ -2110,8 +2111,8 @@ let rawData = null;
             console.log('🚀 Dashboard initializing...');
             loadInitialData();
             
-            // Show welcome modal on first visit
-            setTimeout(() => showWelcomeModal(), 1000);
+            // Welcome modal disabled - users can access "About Dashboard" view instead
+            // setTimeout(() => showWelcomeModal(), 1000);
             
             // Set up file upload listener
             const fileInput = document.getElementById('fileUpload');
