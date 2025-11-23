@@ -6114,12 +6114,15 @@ function showView(view) {
                     align: 'center'
                 });
                 
-                // Add filters information
+                // Add filters information - Get current filter values
                 const filterInfo = [];
-                if (selectedRegion) filterInfo.push(`Region: ${selectedRegion}`);
-                if (selectedAccount) filterInfo.push(`Account: ${selectedAccount}`);
-                if (selectedTower) filterInfo.push(`Tower: ${selectedTower}`);
-                if (selectedPracticeHead) filterInfo.push(`Practice Head: ${selectedPracticeHead}`);
+                const selectedRegions = $('#regionFilter').val() || [];
+                const selectedPracticeHeads = $('#practiceFilter').val() || [];
+                const selectedAccounts = $('#accountFilter').val() || [];
+                
+                if (selectedRegions.length > 0) filterInfo.push(`Regions: ${selectedRegions.join(', ')}`);
+                if (selectedPracticeHeads.length > 0) filterInfo.push(`Practice Heads: ${selectedPracticeHeads.join(', ')}`);
+                if (selectedAccounts.length > 0) filterInfo.push(`Projects: ${selectedAccounts.join(', ')}`);
                 
                 if (filterInfo.length > 0) {
                     titleSlide.addText('Applied Filters:', {
