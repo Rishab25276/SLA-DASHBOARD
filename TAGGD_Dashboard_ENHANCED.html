@@ -1576,6 +1576,12 @@
                 </div>
                 
                 <div class="filter-group">
+                    <label><i class="bi bi-person-badge"></i> Regional Head:</label>
+                    <select id="regionalHeadFilter" multiple="multiple" style="width: 100%;">
+                    </select>
+                </div>
+                
+                <div class="filter-group">
                     <label><i class="bi bi-geo-alt"></i> Region:</label>
                     <select id="regionFilter" multiple="multiple" style="width: 100%;">
                     </select>
@@ -1684,6 +1690,7 @@ function processNotReportedData() {
         
         processed.fy24_25[account] = {
             account: account,
+            regionalHead: row['Regional Head '],
             region: row.Region,
             practiceHead: row['Practice Head'],
             months: months,
@@ -1708,6 +1715,7 @@ function processNotReportedData() {
         
         processed.fy25_26[account] = {
             account: account,
+            regionalHead: row['Regional Head '],
             region: row.Region,
             practiceHead: row['Practice Head'],
             months: months,
@@ -1743,6 +1751,7 @@ let rawData = null;
 
         let activeFilters = {
             fy: 'all',
+            regionalHead: [],
             region: [],
             practice: [],
             account: [],
@@ -2270,6 +2279,16 @@ let rawData = null;
             }
 
             // Initialize Select2 for multi-select filters
+            $('#regionalHeadFilter').select2({
+                placeholder: 'Select regional heads...',
+                allowClear: true
+            }).on('change', function() {
+                updateRegionFilter();
+                updatePracticeHeadFilter();
+                updateAccountFilter();
+                applyFilters();
+            });
+
             $('#regionFilter').select2({
                 placeholder: 'Select regions...',
                 allowClear: true
@@ -2326,6 +2345,7 @@ let rawData = null;
                     populateFilters();
                     
                     console.log('Initializing cascading filters...');
+                    updateRegionFilter();
                     updatePracticeHeadFilter();
                     updateAccountFilter();
                     
@@ -2503,20 +2523,31 @@ let rawData = null;
             console.log('Populating filters...');
 
             // Get unique values
+            const regionalHeads = new Set();
             const regions = new Set();
             const practices = new Set();
             const projects = new Set();
             
             [...rawData.fy24_25, ...rawData.fy25_26].forEach(row => {
+                // Note: Column name has trailing space in Excel
+                if (row['Regional Head ']) regionalHeads.add(row['Regional Head ']);
                 if (row.Region) regions.add(row.Region);
                 if (row['Practice Head']) practices.add(row['Practice Head']);
                 if (row.Project) projects.add(row.Project);
             });
             
+            console.log('Unique regional heads:', regionalHeads.size);
             console.log('Unique regions:', regions.size);
             console.log('Unique practice heads:', practices.size);
             console.log('Unique projects:', projects.size);
 
+            // Populate Regional Head filter
+            const regionalHeadFilter = $('#regionalHeadFilter');
+            regionalHeadFilter.empty();
+            Array.from(regionalHeads).sort().forEach(rh => {
+                regionalHeadFilter.append(new Option(rh, rh));
+            });
+            
             // Populate Region filter
             const regionFilter = $('#regionFilter');
             regionFilter.empty();
@@ -2547,26 +2578,78 @@ let rawData = null;
         
         // ==================== ADVANCED CASCADING FILTERS ====================
         
-        // Update Practice Head filter based on selected regions
+        // Update Region filter based on selected Regional Heads
+        function updateRegionFilter() {
+            const selectedRegionalHeads = $('#regionalHeadFilter').val() || [];
+            const regionFilter = $('#regionFilter');
+            const currentValues = regionFilter.val() || [];
+            
+            // Get unique regions for selected regional heads
+            let availableRegions = new Set();
+            
+            if (selectedRegionalHeads.length === 0) {
+                // No regional head selected - show all regions
+                [...parsedData.fy24_25, ...parsedData.fy25_26].forEach(row => {
+                    if (row.Region) {
+                        availableRegions.add(row.Region);
+                    }
+                });
+            } else {
+                // Filter regions by selected regional heads
+                [...parsedData.fy24_25, ...parsedData.fy25_26].forEach(row => {
+                    if (selectedRegionalHeads.includes(row['Regional Head ']) && row.Region) {
+                        availableRegions.add(row.Region);
+                    }
+                });
+            }
+            
+            // Rebuild region dropdown
+            regionFilter.empty();
+            const sortedRegions = Array.from(availableRegions).sort();
+            sortedRegions.forEach(region => {
+                regionFilter.append(new Option(region, region));
+            });
+            
+            // Restore previously selected values if they still exist
+            const validValues = currentValues.filter(val => sortedRegions.includes(val));
+            regionFilter.val(validValues).trigger('change.select2');
+            
+            console.log(`Updated Region filter: ${sortedRegions.length} options available`);
+        }
+        
+        // Update Practice Head filter based on selected regional heads and regions
         function updatePracticeHeadFilter() {
+            const selectedRegionalHeads = $('#regionalHeadFilter').val() || [];
             const selectedRegions = $('#regionFilter').val() || [];
             const practiceFilter = $('#practiceFilter');
             const currentValues = practiceFilter.val() || [];
             
-            // Get unique practice heads for selected regions
+            // Get unique practice heads for selected regional heads and regions
             let availablePractices = new Set();
             
-            if (selectedRegions.length === 0) {
-                // No region selected - show all practice heads
+            if (selectedRegionalHeads.length === 0 && selectedRegions.length === 0) {
+                // No filters selected - show all practice heads
                 [...parsedData.fy24_25, ...parsedData.fy25_26].forEach(row => {
                     if (row['Practice Head']) {
                         availablePractices.add(row['Practice Head']);
                     }
                 });
             } else {
-                // Filter practice heads by selected regions
+                // Filter practice heads by selected regional heads and regions
                 [...parsedData.fy24_25, ...parsedData.fy25_26].forEach(row => {
-                    if (selectedRegions.includes(row.Region) && row['Practice Head']) {
+                    let includeRow = true;
+                    
+                    // Filter by regional head if selected
+                    if (selectedRegionalHeads.length > 0 && !selectedRegionalHeads.includes(row['Regional Head '])) {
+                        includeRow = false;
+                    }
+                    
+                    // Filter by region if selected
+                    if (selectedRegions.length > 0 && !selectedRegions.includes(row.Region)) {
+                        includeRow = false;
+                    }
+                    
+                    if (includeRow && row['Practice Head']) {
                         availablePractices.add(row['Practice Head']);
                     }
                 });
@@ -2586,8 +2669,9 @@ let rawData = null;
             console.log(`Updated Practice Head filter: ${sortedPractices.length} options available`);
         }
         
-        // Update Account filter based on selected regions and practice heads
+        // Update Account filter based on selected regional heads, regions and practice heads
         function updateAccountFilter() {
+            const selectedRegionalHeads = $('#regionalHeadFilter').val() || [];
             const selectedRegions = $('#regionFilter').val() || [];
             const selectedPractices = $('#practiceFilter').val() || [];
             const accountFilter = $('#accountFilter');
@@ -2598,6 +2682,11 @@ let rawData = null;
             
             [...parsedData.fy24_25, ...parsedData.fy25_26].forEach(row => {
                 let includeAccount = true;
+                
+                // Filter by regional head if selected
+                if (selectedRegionalHeads.length > 0 && !selectedRegionalHeads.includes(row['Regional Head '])) {
+                    includeAccount = false;
+                }
                 
                 // Filter by region if selected
                 if (selectedRegions.length > 0 && !selectedRegions.includes(row.Region)) {
@@ -2639,6 +2728,7 @@ let rawData = null;
 
             // Get filter values
             activeFilters.fy = document.getElementById('fyFilter').value;
+            activeFilters.regionalHead = $('#regionalHeadFilter').val() || [];
             activeFilters.region = $('#regionFilter').val() || [];
             activeFilters.practice = $('#practiceFilter').val() || [];
             activeFilters.account = $('#accountFilter').val() || [];
@@ -2649,6 +2739,11 @@ let rawData = null;
             let fy25Data = [...rawData.fy25_26];
 
             // Apply filters
+            if (activeFilters.regionalHead.length > 0) {
+                fy24Data = fy24Data.filter(row => activeFilters.regionalHead.includes(row['Regional Head ']));
+                fy25Data = fy25Data.filter(row => activeFilters.regionalHead.includes(row['Regional Head ']));
+            }
+
             if (activeFilters.region.length > 0) {
                 fy24Data = fy24Data.filter(row => activeFilters.region.includes(row.Region));
                 fy25Data = fy25Data.filter(row => activeFilters.region.includes(row.Region));
@@ -2727,6 +2822,7 @@ let rawData = null;
         // Clear all filters
         function clearAllFilters() {
             document.getElementById('fyFilter').value = 'all';
+            $('#regionalHeadFilter').val(null).trigger('change');
             $('#regionFilter').val(null).trigger('change');
             $('#practiceFilter').val(null).trigger('change');
             $('#accountFilter').val(null).trigger('change');
@@ -2734,6 +2830,7 @@ let rawData = null;
             
             activeFilters = {
                 fy: 'all',
+                regionalHead: [],
                 region: [],
                 practice: [],
                 account: [],
@@ -2957,6 +3054,7 @@ function showNotReportedAnalysis() {
 // Helper function to apply filters to Not Reported data
 function applyFiltersToNotReported(data, fy) {
     const filtered = {};
+    const selectedRegionalHeads = getSelectedFilters('regionalHeadFilter');
     const selectedRegions = getSelectedFilters('regionFilter');
     const selectedPractices = getSelectedFilters('practiceFilter');
     const selectedAccounts = getSelectedFilters('accountFilter');
@@ -2965,6 +3063,9 @@ function applyFiltersToNotReported(data, fy) {
         const item = data[account];
         let include = true;
         
+        if (selectedRegionalHeads.length > 0 && !selectedRegionalHeads.includes(item.regionalHead)) {
+            include = false;
+        }
         if (selectedRegions.length > 0 && !selectedRegions.includes(item.region)) {
             include = false;
         }
@@ -6116,10 +6217,12 @@ function showView(view) {
                 
                 // Add filters information - Get current filter values
                 const filterInfo = [];
+                const selectedRegionalHeads = $('#regionalHeadFilter').val() || [];
                 const selectedRegions = $('#regionFilter').val() || [];
                 const selectedPracticeHeads = $('#practiceFilter').val() || [];
                 const selectedAccounts = $('#accountFilter').val() || [];
                 
+                if (selectedRegionalHeads.length > 0) filterInfo.push(`Regional Heads: ${selectedRegionalHeads.join(', ')}`);
                 if (selectedRegions.length > 0) filterInfo.push(`Regions: ${selectedRegions.join(', ')}`);
                 if (selectedPracticeHeads.length > 0) filterInfo.push(`Practice Heads: ${selectedPracticeHeads.join(', ')}`);
                 if (selectedAccounts.length > 0) filterInfo.push(`Projects: ${selectedAccounts.join(', ')}`);
