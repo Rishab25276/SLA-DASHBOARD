@@ -2281,6 +2281,17 @@ let rawData = null;
         Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
         Chart.defaults.plugins.legend.labels.usePointStyle = true;
 
+        // Remove grid lines from all charts globally
+        Chart.defaults.scales.x = Chart.defaults.scales.x || {};
+        Chart.defaults.scales.x.grid = {
+            display: false,
+            drawBorder: true
+        };
+        Chart.defaults.scales.y = Chart.defaults.scales.y || {};
+        Chart.defaults.scales.y.grid = {
+            display: false,
+            drawBorder: true
+        };
         
         Chart.defaults.plugins.datalabels = {
             display: true,
