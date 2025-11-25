@@ -2341,33 +2341,63 @@
 
         function processVoiceCommand(command) {
             console.log('Processing command:', command);
+            const lowerCommand = command.toLowerCase();
             
-            // Command 1: Show me [Month] SLA
-            const monthMatch = command.match(/show me (\w+) sla/i);
-            if (monthMatch) {
-                const month = monthMatch[1];
-                const monthMap = {
-                    'january': 'Jan', 'jan': 'Jan',
-                    'february': 'Feb', 'feb': 'Feb',
-                    'march': 'Mar', 'mar': 'Mar', 'march': 'March',
-                    'april': 'Apr', 'apr': 'Apr',
-                    'may': 'May',
-                    'june': 'Jun', 'jun': 'Jun', 'june': 'June',
-                    'july': 'Jul', 'jul': 'Jul', 'july': 'July',
-                    'august': 'Aug', 'aug': 'Aug',
-                    'september': 'Sep', 'sept': 'Sep', 'sep': 'Sep',
-                    'october': 'Oct', 'oct': 'Oct',
-                    'november': 'Nov', 'nov': 'Nov',
-                    'december': 'Dec', 'dec': 'Dec'
-                };
-                
-                const monthValue = monthMap[month.toLowerCase()];
-                if (monthValue) {
-                    showToast(`Setting filter to ${month}...`, 'success');
+            // Month mapping for intelligent recognition
+            const monthMap = {
+                'january': 'Jan', 'jan': 'Jan',
+                'february': 'Feb', 'feb': 'Feb',
+                'march': 'Mar', 'mar': 'Mar', 'march': 'March',
+                'april': 'Apr', 'apr': 'Apr',
+                'may': 'May',
+                'june': 'Jun', 'jun': 'Jun', 'june': 'June',
+                'july': 'Jul', 'jul': 'Jul', 'july': 'July',
+                'august': 'Aug', 'aug': 'Aug',
+                'september': 'Sep', 'sept': 'Sep', 'sep': 'Sep',
+                'october': 'Oct', 'oct': 'Oct',
+                'november': 'Nov', 'nov': 'Nov',
+                'december': 'Dec', 'dec': 'Dec'
+            };
+
+            // Region mapping for intelligent recognition
+            const regionMap = {
+                'north': 'North',
+                'south': 'South',
+                'south 1': 'South 1',
+                'south 2': 'South 2',
+                'south1': 'South 1',
+                'south2': 'South 2',
+                'east': 'East',
+                'west': 'West',
+                'west 1': 'West 1',
+                'west 2': 'West 2',
+                'west1': 'West 1',
+                'west2': 'West 2'
+            };
+
+            // Practice head mapping for intelligent recognition
+            const practiceHeadMap = {
+                'krishna': 'Krishna',
+                'bapi': 'Bapi Reddy',
+                'bapi reddy': 'Bapi Reddy',
+                'megha': 'Megha',
+                'elton': 'Elton',
+                'usha': 'Usha',
+                'geetu': 'Geetu',
+                'amit': 'Amit',
+                'subhashree': 'Subhashree'
+            };
+            
+            // ===================================================================
+            // INTELLIGENT MONTH FILTER
+            // ===================================================================
+            for (const [key, value] of Object.entries(monthMap)) {
+                if (lowerCommand.includes(key)) {
+                    showToast(`Setting filter to ${value}...`, 'success');
                     setTimeout(() => {
                         const monthFilter = document.getElementById('monthFilter');
                         if (monthFilter) {
-                            monthFilter.value = monthValue;
+                            monthFilter.value = value;
                             applyFilters();
                         }
                         showView('overview');
@@ -2376,8 +2406,57 @@
                 }
             }
             
-            // Command 2: Switch to Practice Head view
-            if (command.includes('practice') && command.includes('head')) {
+            // ===================================================================
+            // INTELLIGENT REGION FILTER
+            // ===================================================================
+            for (const [key, value] of Object.entries(regionMap)) {
+                if (lowerCommand.includes(key) && (lowerCommand.includes('region') || lowerCommand.includes('sla'))) {
+                    showToast(`Filtering to ${value} region...`, 'success');
+                    setTimeout(() => {
+                        // Get the Region filter Select2 element
+                        const regionFilter = $('#regionFilter');
+                        if (regionFilter.length) {
+                            // Clear existing selections
+                            regionFilter.val(null).trigger('change');
+                            // Set new value
+                            regionFilter.val([value]).trigger('change');
+                            // Apply filters
+                            applyFilters();
+                            showView('overview');
+                        }
+                    }, 500);
+                    return;
+                }
+            }
+            
+            // ===================================================================
+            // INTELLIGENT PRACTICE HEAD FILTER
+            // ===================================================================
+            for (const [key, value] of Object.entries(practiceHeadMap)) {
+                if (lowerCommand.includes(key) && (lowerCommand.includes('practice') || lowerCommand.includes('head') || lowerCommand.includes('filter'))) {
+                    showToast(`Filtering to ${value} practice head...`, 'success');
+                    setTimeout(() => {
+                        // Get the Practice Head filter Select2 element
+                        const practiceFilter = $('#practiceFilter');
+                        if (practiceFilter.length) {
+                            // Clear existing selections
+                            practiceFilter.val(null).trigger('change');
+                            // Set new value
+                            practiceFilter.val([value]).trigger('change');
+                            // Apply filters
+                            applyFilters();
+                            showView('practice');
+                        }
+                    }, 500);
+                    return;
+                }
+            }
+            
+            // ===================================================================
+            // VIEW NAVIGATION COMMANDS
+            // ===================================================================
+            if ((lowerCommand.includes('practice') && lowerCommand.includes('head') && lowerCommand.includes('view')) ||
+                (lowerCommand.includes('switch') && lowerCommand.includes('practice'))) {
                 showToast('Opening Practice Head view...', 'success');
                 setTimeout(() => {
                     showView('practice');
@@ -2385,23 +2464,7 @@
                 return;
             }
             
-            // Command 3: Export this dashboard
-            if (command.includes('export')) {
-                showToast('Opening export options...', 'success');
-                setTimeout(() => {
-                    const exportBtn = document.getElementById('exportPdfBtn');
-                    if (exportBtn) {
-                        exportBtn.click();
-                    } else {
-                        // Try alternate export method
-                        exportToPDF();
-                    }
-                }, 500);
-                return;
-            }
-            
-            // Additional helpful commands
-            if (command.includes('overview') || command.includes('dashboard')) {
+            if (lowerCommand.includes('overview') || (lowerCommand.includes('show') && lowerCommand.includes('dashboard'))) {
                 showToast('Opening dashboard overview...', 'success');
                 setTimeout(() => {
                     showView('overview');
@@ -2409,7 +2472,7 @@
                 return;
             }
 
-            if (command.includes('monthly')) {
+            if (lowerCommand.includes('monthly') || (lowerCommand.includes('show') && lowerCommand.includes('month'))) {
                 showToast('Opening monthly view...', 'success');
                 setTimeout(() => {
                     showView('monthly');
@@ -2417,16 +2480,75 @@
                 return;
             }
 
-            if (command.includes('quarterly')) {
+            if (lowerCommand.includes('quarterly') || (lowerCommand.includes('show') && lowerCommand.includes('quarter'))) {
                 showToast('Opening quarterly view...', 'success');
                 setTimeout(() => {
                     showView('quarterly');
                 }, 500);
                 return;
             }
+
+            if (lowerCommand.includes('account') && lowerCommand.includes('view')) {
+                showToast('Opening account view...', 'success');
+                setTimeout(() => {
+                    showView('account');
+                }, 500);
+                return;
+            }
+
+            if (lowerCommand.includes('not reported')) {
+                showToast('Opening not reported analysis...', 'success');
+                setTimeout(() => {
+                    showView('notreported');
+                }, 500);
+                return;
+            }
+
+            if (lowerCommand.includes('benchmark')) {
+                showToast('Opening benchmarking view...', 'success');
+                setTimeout(() => {
+                    showView('benchmarking');
+                }, 500);
+                return;
+            }
             
-            // Command not recognized
-            showToast('Sorry, I didn\'t catch that. Try: "Show me October SLA", "Switch to Practice Head view", or "Export this dashboard"', 'info');
+            // ===================================================================
+            // EXPORT COMMANDS
+            // ===================================================================
+            if (lowerCommand.includes('export') || lowerCommand.includes('download') || lowerCommand.includes('pdf')) {
+                showToast('Opening export options...', 'success');
+                setTimeout(() => {
+                    const exportBtn = document.getElementById('exportPdfBtn');
+                    if (exportBtn) {
+                        exportBtn.click();
+                    } else {
+                        exportToPDF();
+                    }
+                }, 500);
+                return;
+            }
+
+            // ===================================================================
+            // CLEAR FILTERS COMMAND
+            // ===================================================================
+            if (lowerCommand.includes('clear') && lowerCommand.includes('filter')) {
+                showToast('Clearing all filters...', 'success');
+                setTimeout(() => {
+                    // Clear all filters
+                    $('#regionalHeadFilter').val(null).trigger('change');
+                    $('#regionFilter').val(null).trigger('change');
+                    $('#practiceFilter').val(null).trigger('change');
+                    $('#accountFilter').val(null).trigger('change');
+                    document.getElementById('monthFilter').value = 'All';
+                    applyFilters();
+                }, 500);
+                return;
+            }
+            
+            // ===================================================================
+            // COMMAND NOT RECOGNIZED
+            // ===================================================================
+            showToast('Sorry, I didn\'t understand. Try: "Show me North region", "Filter Krishna", "Show me October", or "Export dashboard"', 'info');
         }
 
         function playBeep(isStart) {
@@ -6018,16 +6140,104 @@ function showView(view) {
                 </div>
                 
                 <div class="card animated-card" style="animation-delay: 0.4s;" id="section-audio">
-                    <h3><i class="bi bi-volume-up-fill"></i> Audio Features</h3>
+                    <h3><i class="bi bi-volume-up-fill"></i> Audio & Voice Features</h3>
                     
-                    <h4 style="margin-top: 20px; color: var(--primary-color);">Enabling Audio</h4>
+                    <h4 style="margin-top: 20px; color: var(--primary-color);"><i class="bi bi-mic-fill"></i> 🎤 Voice-Enabled Navigation (NEW!)</h4>
+                    <p>Control the dashboard hands-free using natural voice commands with intelligent recognition.</p>
+                    
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #FF6B35;">
+                        <h5 style="color: #92400e; margin-bottom: 10px;">🚀 How to Use Voice Commands:</h5>
+                        <ol style="line-height: 2.2; margin-left: 20px; color: #78350f;">
+                            <li>Click the <strong>orange microphone button</strong> 🎤 in the bottom-right corner</li>
+                            <li>Grant microphone permission when prompted by your browser</li>
+                            <li>Wait for the <strong>beep sound</strong> and "Listening..." indicator</li>
+                            <li>Speak your command clearly and naturally</li>
+                            <li>Dashboard executes your request automatically</li>
+                        </ol>
+                    </div>
+
+                    <h5 style="margin-top: 20px; color: var(--primary-color);">📝 Supported Voice Commands:</h5>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Command Type</th>
+                                <th>Example Phrases</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Month Filter</strong></td>
+                                <td>"Show me October SLA"<br>"Show me April data"<br>"Filter December"</td>
+                                <td>Applies month filter and shows overview</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Region Filter</strong></td>
+                                <td>"Show me North region SLAs"<br>"Filter South region"<br>"Display West region data"</td>
+                                <td>Applies region filter automatically</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Practice Head Filter</strong></td>
+                                <td>"Filter Krishna practice head"<br>"Show Bapi Reddy's data"<br>"Megha practice head"</td>
+                                <td>Applies practice head filter</td>
+                            </tr>
+                            <tr>
+                                <td><strong>View Navigation</strong></td>
+                                <td>"Switch to Practice Head view"<br>"Show monthly view"<br>"Open quarterly"</td>
+                                <td>Navigates to specified view</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Export</strong></td>
+                                <td>"Export this dashboard"<br>"Download PDF"<br>"Export data"</td>
+                                <td>Triggers PDF/Excel export</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3b82f6;">
+                        <h5 style="color: #1e40af; margin-bottom: 8px;">💡 Pro Tips:</h5>
+                        <ul style="line-height: 2; margin-left: 20px; color: #1e3a8a;">
+                            <li>Speak naturally - the system understands context</li>
+                            <li>Use region names, practice head names, or month names</li>
+                            <li>Check the help tooltip by hovering over the mic button</li>
+                            <li>Works best in quiet environments</li>
+                            <li>Supported in Chrome, Edge (Full), Safari (Limited)</li>
+                        </ul>
+                    </div>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #d1d5db;">
+
+                    <h4 style="margin-top: 20px; color: var(--primary-color);"><i class="bi bi-clock-history"></i> ⏰ Last Updated Timestamp (NEW!)</h4>
+                    <p>The dashboard now displays a real-time timestamp in the <strong>top-right corner</strong> showing when data was last updated.</p>
+                    
+                    <div style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #9333ea;">
+                        <h5 style="color: #581c87; margin-bottom: 10px;">📋 Timestamp Features:</h5>
+                        <ul style="line-height: 2; margin-left: 20px; color: #6b21a8;">
+                            <li><strong>Format:</strong> "Last Updated: Monday, 25 November 2025, 2:30 PM"</li>
+                            <li><strong>Auto-Update:</strong> Refreshes automatically when you upload new data</li>
+                            <li><strong>Always Visible:</strong> Fixed position in top-right corner</li>
+                            <li><strong>Theme-Aware:</strong> Adapts to light and dark modes</li>
+                            <li><strong>Mobile-Friendly:</strong> Responsive design for all screen sizes</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #10b981;">
+                        <p style="margin: 0; color: #065f46;"><strong>✨ Benefits:</strong> Stay informed about data freshness • Build trust in data currency • Make decisions based on up-to-date information • Track when colleagues uploaded new data</p>
+                    </div>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #d1d5db;">
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);"><i class="bi bi-volume-up-fill"></i> Audio Narration</h4>
+                    <p>Enable traditional audio narration for accessibility and presentations.</p>
+                    
+                    <h5 style="margin-top: 15px; color: var(--primary-color);">Enabling Audio Narration:</h5>
                     <ol style="line-height: 2; margin-left: 20px;">
                         <li>Click the "Enable Audio" button in the sidebar</li>
                         <li>Select your preferred language (English or Hindi)</li>
                         <li>Navigate the dashboard - actions and insights will be narrated</li>
                     </ol>
                     
-                    <h4 style="margin-top: 20px; color: var(--primary-color);">Supported Languages</h4>
+                    <h5 style="margin-top: 20px; color: var(--primary-color);">Supported Languages:</h5>
                     <ul style="line-height: 2; margin-left: 20px;">
                         <li><strong>English (en-US):</strong> Default language</li>
                         <li><strong>Hindi (hi-IN):</strong> हिंदी में ऑडियो विवरण</li>
@@ -6397,6 +6607,92 @@ function showView(view) {
                         <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #06b6d4;">
                             <h4 style="color: #06b6d4; margin-bottom: 8px;">🔊 Audio Narration</h4>
                             <p>Enable voice descriptions in English or Hindi for accessibility</p>
+                        </div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #FF6B35;">
+                            <h4 style="color: #FF6B35; margin-bottom: 8px;">🎤 Voice Commands</h4>
+                            <p>Hands-free navigation with intelligent voice recognition and natural language processing</p>
+                        </div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #9333ea;">
+                            <h4 style="color: #9333ea; margin-bottom: 8px;">⏰ Live Timestamp</h4>
+                            <p>Real-time display of last data update for transparency and data freshness tracking</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Features: Voice Control & Timestamp -->
+                <div class="card animated-card" style="animation-delay: 0.35s; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b;">
+                    <h3 style="color: #92400e;"><i class="bi bi-stars"></i> ✨ New Features</h3>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #FF6B35; margin-bottom: 10px;"><i class="bi bi-mic-fill"></i> 🎤 Voice-Enabled Navigation</h4>
+                        <p style="line-height: 1.8; margin-bottom: 15px;">
+                            Control the dashboard hands-free using natural voice commands. The intelligent voice recognition system 
+                            understands context and can apply filters, switch views, and execute actions based on your spoken instructions.
+                        </p>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <h5 style="color: #3a1c71; margin-bottom: 12px;">📝 Example Voice Commands:</h5>
+                            <ul style="line-height: 2.2; list-style: none; padding-left: 0;">
+                                <li style="padding: 8px; background: #f0f9ff; margin: 5px 0; border-radius: 5px; border-left: 3px solid #3b82f6;">
+                                    <strong>"Show me October SLA"</strong> → Filters to October and shows overview
+                                </li>
+                                <li style="padding: 8px; background: #f0fdf4; margin: 5px 0; border-radius: 5px; border-left: 3px solid #10b981;">
+                                    <strong>"Show me North region SLAs"</strong> → Filters to North region automatically
+                                </li>
+                                <li style="padding: 8px; background: #fef3c7; margin: 5px 0; border-radius: 5px; border-left: 3px solid #f59e0b;">
+                                    <strong>"Switch to Practice Head view"</strong> → Opens Practice Head analysis
+                                </li>
+                                <li style="padding: 8px; background: #fce7f3; margin: 5px 0; border-radius: 5px; border-left: 3px solid #ec4899;">
+                                    <strong>"Export this dashboard"</strong> → Triggers PDF export
+                                </li>
+                                <li style="padding: 8px; background: #ede9fe; margin: 5px 0; border-radius: 5px; border-left: 3px solid #8b5cf6;">
+                                    <strong>"Filter Krishna practice head"</strong> → Applies Practice Head filter
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <div style="padding: 12px; background: white; border-radius: 8px; text-align: center;">
+                                <i class="bi bi-hand-thumbs-up" style="font-size: 2em; color: #10b981;"></i>
+                                <p style="margin-top: 8px; font-size: 0.9em;"><strong>Intelligent Recognition</strong><br>Understands natural language</p>
+                            </div>
+                            <div style="padding: 12px; background: white; border-radius: 8px; text-align: center;">
+                                <i class="bi bi-lightning-charge" style="font-size: 2em; color: #f59e0b;"></i>
+                                <p style="margin-top: 8px; font-size: 0.9em;"><strong>Fast & Responsive</strong><br>Instant command execution</p>
+                            </div>
+                            <div style="padding: 12px; background: white; border-radius: 8px; text-align: center;">
+                                <i class="bi bi-volume-up" style="font-size: 2em; color: #3b82f6;"></i>
+                                <p style="margin-top: 8px; font-size: 0.9em;"><strong>Audio Feedback</strong><br>Beeps & visual indicators</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; border: 2px dashed #f59e0b;">
+                            <p style="margin: 0; color: #92400e;"><strong>📍 How to Use:</strong> Click the orange microphone button 🎤 in the bottom-right corner, grant microphone permission, and speak your command naturally!</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #f59e0b;">
+
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #9333ea; margin-bottom: 10px;"><i class="bi bi-clock-history"></i> ⏰ Last Updated Timestamp</h4>
+                        <p style="line-height: 1.8; margin-bottom: 15px;">
+                            Stay informed about data freshness with the real-time timestamp display in the top-right corner. 
+                            The timestamp automatically updates whenever new data is uploaded, ensuring transparency and trust in the dashboard's information.
+                        </p>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <h5 style="color: #3a1c71; margin-bottom: 12px;">📋 Timestamp Features:</h5>
+                            <ul style="line-height: 2; margin-left: 20px;">
+                                <li><strong>Format:</strong> "Last Updated: Monday, 25 November 2025, 2:30 PM"</li>
+                                <li><strong>Auto-Update:</strong> Refreshes automatically on data upload</li>
+                                <li><strong>Position:</strong> Fixed top-right corner (always visible)</li>
+                                <li><strong>Responsive:</strong> Adapts to all screen sizes</li>
+                                <li><strong>Theme-Aware:</strong> Works in both light and dark modes</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; border: 2px dashed #9333ea;">
+                            <p style="margin: 0; color: #581c87;"><strong>✨ Benefits:</strong> Know exactly when data was last refreshed • Build trust in data currency • Make informed decisions based on data timeliness</p>
                         </div>
                     </div>
                 </div>
