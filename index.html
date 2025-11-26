@@ -5214,6 +5214,19 @@ function showView(view) {
                 ...filteredData.fy25_26.map(row => row.Project)
             ]);
             
+            // Debug: Check for accounts with multiple regions/practices
+            console.log('=== FILTERED DATA DEBUG ===');
+            console.log('FY24-25 rows:', filteredData.fy24_25.length);
+            console.log('FY25-26 rows:', filteredData.fy25_26.length);
+            const accountRegionMap = {};
+            filteredData.fy25_26.forEach(row => {
+                if (!accountRegionMap[row.Project]) {
+                    accountRegionMap[row.Project] = new Set();
+                }
+                accountRegionMap[row.Project].add(row.Region);
+            });
+            console.log('Accounts with multiple regions:', Object.entries(accountRegionMap).filter(([k,v]) => v.size > 1));
+            
             const fy24months = extractMonthsFromData(filteredData.fy24_25, null);
             const fy25months = extractMonthsFromData(null, filteredData.fy25_26);
             
@@ -5262,11 +5275,18 @@ function showView(view) {
             // Top 5 worst performers (FY 25-26)
             const top5Worst = [...accountPerformance].sort((a, b) => a.fy25Compliance - b.fy25Compliance).slice(0, 5);
             
+            // Debug: Log account performance data
+            console.log('=== ACCOUNT PERFORMANCE DEBUG ===');
+            console.log('Total accounts:', accountPerformance.length);
+            console.log('Account Performance Data:', accountPerformance);
+            
             // Top 5 most improved (YoY change)
             const top5Improved = [...accountPerformance].filter(a => a.fy24Compliance > 0).sort((a, b) => b.improvement - a.improvement).slice(0, 5);
+            console.log('Top 5 Improved:', top5Improved);
             
             // Top 5 most declined (YoY change)
             const top5Declined = [...accountPerformance].filter(a => a.fy24Compliance > 0).sort((a, b) => a.improvement - b.improvement).slice(0, 5);
+            console.log('Top 5 Declined:', top5Declined);
             
             // Regional rankings
             const regionData = {};
