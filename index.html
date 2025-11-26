@@ -5204,6 +5204,9 @@ function showView(view) {
 
         // Render Executive View - NEW ENHANCED VIEW
         function renderExecutiveView() {
+            console.log('🔍 renderExecutiveView() called at', new Date().toLocaleTimeString());
+            console.log('Stack trace:', new Error().stack);
+            
             const fy24Metrics = calculateOverallMetrics(filteredData.fy24_25, 'fy24_25');
             const fy25Metrics = calculateOverallMetrics(filteredData.fy25_26, 'fy25_26');
             
@@ -5233,6 +5236,13 @@ function showView(view) {
             uniqueAccounts.forEach(accountName => {
                 // FY 24-25 data
                 const fy24Rows = filteredData.fy24_25.filter(row => row.Project === accountName);
+                
+                // Debug: Log accounts with multiple rows
+                if (fy24Rows.length > 1) {
+                    console.log(`⚠️ Account "${accountName}" has ${fy24Rows.length} rows in FY24-25:`, 
+                        fy24Rows.map(r => ({ Region: r.Region, Practice: r['Practice Head'] })));
+                }
+                
                 let fy24Met = 0, fy24NotMet = 0;
                 fy24months.forEach(month => {
                     fy24Rows.forEach(row => {
@@ -5280,6 +5290,15 @@ function showView(view) {
             console.log('Total accounts:', accountPerformance.length);
             console.log('Account Performance Data:', accountPerformance);
             
+            // Check for duplicate account names
+            const accountNames = accountPerformance.map(a => a.account);
+            const duplicates = accountNames.filter((name, index) => accountNames.indexOf(name) !== index);
+            if (duplicates.length > 0) {
+                console.error('🚨 DUPLICATE ACCOUNTS FOUND:', [...new Set(duplicates)]);
+                console.log('Duplicate account details:', 
+                    accountPerformance.filter(a => duplicates.includes(a.account)));
+            }
+            
             // Top 5 most improved (YoY change)
             const top5Improved = [...accountPerformance].filter(a => a.fy24Compliance > 0).sort((a, b) => b.improvement - a.improvement).slice(0, 5);
             console.log('Top 5 Improved:', top5Improved);
@@ -5287,6 +5306,14 @@ function showView(view) {
             // Top 5 most declined (YoY change)
             const top5Declined = [...accountPerformance].filter(a => a.fy24Compliance > 0).sort((a, b) => a.improvement - b.improvement).slice(0, 5);
             console.log('Top 5 Declined:', top5Declined);
+            
+            // Check if any account appears in both lists
+            const improvedNames = top5Improved.map(a => a.account);
+            const declinedNames = top5Declined.map(a => a.account);
+            const inBoth = improvedNames.filter(name => declinedNames.includes(name));
+            if (inBoth.length > 0) {
+                console.error('🚨 ACCOUNTS IN BOTH LISTS:', inBoth);
+            }
             
             // Regional rankings
             const regionData = {};
