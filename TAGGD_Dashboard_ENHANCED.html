@@ -3042,17 +3042,51 @@ let rawData = null;
             drawBorder: true
         };
         
+        // Set light grey background for all charts with better data label visibility
+        Chart.defaults.plugins.beforeDraw = {
+            id: 'chartBackground',
+            beforeDraw: (chart) => {
+                const ctx = chart.canvas.getContext('2d');
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = '#F5F5F5';  // Light grey background
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
+        
+        // Register the background plugin globally
+        if (typeof Chart !== 'undefined' && Chart.register) {
+            Chart.register({
+                id: 'chartBackground',
+                beforeDraw: (chart) => {
+                    const ctx = chart.canvas.getContext('2d');
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = '#F5F5F5';  // Light grey background
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            });
+        }
+        
         Chart.defaults.plugins.datalabels = {
             display: true,
             color: function(context) {
-                // Use RAG colors for data labels
+                // Use high contrast colors for data labels on light grey background
                 const value = context.dataset.data[context.dataIndex];
                 if (value === null || value === undefined || value === 0) return 'transparent';
+                
+                // Get the background color of the bar/element
+                const bgColor = context.dataset.backgroundColor;
+                
+                // Use dark text for better visibility
                 if (typeof value === 'number' && value < 100) {
                     if (value >= 75) return '#fff';  // White on green
                     if (value >= 50) return '#000';  // Black on amber
                     return '#fff';  // White on red
                 }
+                // Default to white for most colored backgrounds
                 return '#fff';
             },
             font: {
