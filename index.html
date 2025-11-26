@@ -495,6 +495,10 @@
             background: linear-gradient(135deg, #8e0e00 0%, #1f1c18 100%);
         }
 
+        #theme4 {
+            background: linear-gradient(135deg, #0b486b 0%, #f56217 100%);
+        }
+
         .theme-label {
             position: absolute;
             bottom: -25px;
@@ -2210,6 +2214,9 @@
                     <div class="theme-button" id="theme3" onclick="switchTheme('theme3')" title="Dark Red Gradient">
                         <span class="theme-label">Red</span>
                     </div>
+                    <div class="theme-button" id="theme4" onclick="switchTheme('theme4')" title="Blue to Orange Gradient">
+                        <span class="theme-label">Blue</span>
+                    </div>
                 </div>
             </div>
 
@@ -2682,6 +2689,16 @@
                     primaryDark: '#6b0000',
                     secondary: '#1f1c18',
                     headerBg: 'linear-gradient(135deg, #8e0e00 0%, #1f1c18 100%)'
+                }
+            },
+            theme4: {
+                name: 'Blue to Orange Gradient',
+                colors: {
+                    primary: '#f56217',
+                    primaryLight: '#ff7b2e',
+                    primaryDark: '#d94d0a',
+                    secondary: '#0b486b',
+                    headerBg: 'linear-gradient(135deg, #0b486b 0%, #f56217 100%)'
                 }
             }
         };
@@ -6885,9 +6902,15 @@ function showView(view) {
                         <li><strong>Multi-Year Comparison:</strong> Compare FY 24-25 with FY 25-26 performance</li>
                         <li><strong>Interactive Filters:</strong> Filter by fiscal year, region, practice head, account, and month</li>
                         <li><strong>Audio Descriptions:</strong> Enable audio narration in English or Hindi</li>
-                        <li><strong>Multiple Views:</strong> 8 different analytical perspectives</li>
-                        <li><strong>Export Options:</strong> Export data to Excel or PDF formats</li>
+                        <li><strong>Voice Commands:</strong> Hands-free navigation with intelligent voice recognition</li>
+                        <li><strong>Multiple Views:</strong> 10 different analytical perspectives (Overview, Executive, Monthly, Quarterly, Yearly, Account, Region, Practice Head, Benchmarking, Not Reported)</li>
+                        <li><strong>Export Options:</strong> Export data to Excel, PDF, Word, and PowerPoint formats</li>
                         <li><strong>RAG Status:</strong> Visual color coding (Red/Amber/Green) for quick assessment</li>
+                        <li><strong>Theme Customization:</strong> 4 beautiful gradient themes to personalize your experience</li>
+                        <li><strong>Performance Badges:</strong> 10 achievement badges for practice head recognition</li>
+                        <li><strong>Notification System:</strong> Bell icon shows latest data updates and feedback contact</li>
+                        <li><strong>Live Timestamp:</strong> Real-time display of data last updated time</li>
+                        <li><strong>Clean Chart Design:</strong> Gridlines removed for cleaner visualizations</li>
                     </ul>
                 </div>
                 
@@ -7153,6 +7176,210 @@ function showView(view) {
                         <li><strong>Hindi (hi-IN):</strong> हिंदी में ऑडियो विवरण</li>
                     </ul>
                 </div>
+
+                <div class="card animated-card" style="animation-delay: 0.45s;" id="section-notification">
+                    <h3><i class="bi bi-bell-fill"></i> Notification Bell & Data Updates</h3>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">🔔 Accessing the Notification Bell</h4>
+                    <p>The notification bell icon is located in the <strong>top-right corner of the dashboard header</strong>, next to the dashboard title. A red badge (1) indicates there's information to review.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">📊 What the Notification Shows</h4>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Information</th>
+                                <th>Description</th>
+                                <th>How It Works</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Latest Data Update</strong></td>
+                                <td>Most recent month/year with data</td>
+                                <td>Automatically detects the latest month from FY 25-26 data in reverse chronological order</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Update Timestamp</strong></td>
+                                <td>When data was last refreshed</td>
+                                <td>Updates automatically when new data is uploaded to the dashboard</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Feedback Email</strong></td>
+                                <td>Contact for support & feedback</td>
+                                <td>Direct link to BusinessExcellence@taggd.in for questions, issues, or suggestions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">💡 How to Use</h4>
+                    <ol style="line-height: 2; margin-left: 20px;">
+                        <li>Click the <strong>bell icon (🔔)</strong> in the header</li>
+                        <li>View the notification popup with latest data information</li>
+                        <li>Check the feedback email if you need support</li>
+                        <li>Click outside the popup to close it</li>
+                    </ol>
+                    
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ff6b35;">
+                        <p style="margin: 0; color: #92400e;"><strong>✨ Pro Tip:</strong> Check the notification bell after uploading new data to confirm the system detected the latest month correctly!</p>
+                    </div>
+                </div>
+
+                <div class="card animated-card" style="animation-delay: 0.46s;" id="section-themes">
+                    <h3><i class="bi bi-palette-fill"></i> Theme Customization</h3>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">🎨 Choosing Your Theme</h4>
+                    <p>The dashboard offers <strong>4 beautiful gradient themes</strong> to personalize your experience. The theme switcher is located in the <strong>sidebar above the "Data Management" section</strong>.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">🌈 Available Themes</h4>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Theme</th>
+                                <th>Gradient</th>
+                                <th>Best For</th>
+                                <th>Color Scheme</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>🟠 Orange Gradient</strong></td>
+                                <td>#3c3530 → #ff6b35</td>
+                                <td>Default, warm, professional</td>
+                                <td>Dark Brown to Bright Orange</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🟣 Purple Gradient</strong></td>
+                                <td>#1f1c2c → #928dab</td>
+                                <td>Dark theme, evening use</td>
+                                <td>Deep Purple to Light Mauve</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🔴 Red Gradient</strong></td>
+                                <td>#8e0e00 → #1f1c18</td>
+                                <td>Bold, attention-grabbing</td>
+                                <td>Dark Red to Charcoal</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🔵 Blue-Orange</strong></td>
+                                <td>#0b486b → #f56217</td>
+                                <td>Ocean to sunset, vibrant</td>
+                                <td>Deep Blue to Bright Orange</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">💡 How to Switch Themes</h4>
+                    <ol style="line-height: 2; margin-left: 20px;">
+                        <li>Scroll to the <strong>theme selection section</strong> in the sidebar (above Data Management)</li>
+                        <li>Click on one of the <strong>4 circular theme buttons</strong></li>
+                        <li>The dashboard instantly applies the new theme to all charts and colors</li>
+                        <li>Your preference is automatically saved to your browser</li>
+                    </ol>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">✨ Theme Features</h4>
+                    <ul style="line-height: 2; margin-left: 20px;">
+                        <li><strong>Instant Preview:</strong> See changes immediately across all dashboard views</li>
+                        <li><strong>Persistent Selection:</strong> Your chosen theme is saved and reloads on next visit</li>
+                        <li><strong>Dynamic Charts:</strong> Chart colors automatically adapt to match the theme</li>
+                        <li><strong>Header Gradient:</strong> Dashboard header gradient updates to match theme</li>
+                        <li><strong>Visual Indicator:</strong> Active theme has a golden border and checkmark (✓)</li>
+                    </ul>
+                    
+                    <div style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #8b5cf6;">
+                        <p style="margin: 0; color: #581c87;"><strong>🎯 Accessibility:</strong> All themes maintain high contrast ratios for readability and are designed to be accessible for users with visual impairments.</p>
+                    </div>
+                </div>
+
+                <div class="card animated-card" style="animation-delay: 0.47s;" id="section-badges">
+                    <h3><i class="bi bi-award-fill"></i> Practice Head Performance Badges</h3>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">🏅 Badge System Overview</h4>
+                    <p>Practice heads automatically earn achievement badges based on their SLA performance, improvement trends, and consistency. Badges are displayed on each practice head card in the <strong>"Practice Head Analysis"</strong> view.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">🎖️ All 10 Available Badges</h4>
+                    <table style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>Badge</th>
+                                <th>Criteria</th>
+                                <th>What It Means</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>🔥 100% SLA Achiever</strong></td>
+                                <td>100% SLA in any month</td>
+                                <td>Achieved perfect performance for at least one month</td>
+                            </tr>
+                            <tr>
+                                <td><strong>⭐ Consistent High Performer</strong></td>
+                                <td>≥90% all months (min 3)</td>
+                                <td>Maintained excellence across all reporting months</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🚀 Most Improved</strong></td>
+                                <td>≥15% improvement YoY</td>
+                                <td>Major year-over-year performance improvement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🎯 Zero Breach Month</strong></td>
+                                <td>≥95% any month</td>
+                                <td>Nearly perfect performance in at least one month</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🏆 Top Performer</strong></td>
+                                <td>Rank 1-3, ≥80% overall</td>
+                                <td>Among the top 3 practice heads with strong performance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>📈 Rising Star</strong></td>
+                                <td>10-15% improvement YoY</td>
+                                <td>Strong upward trajectory in performance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🛡️ Stability Champion</strong></td>
+                                <td>Variance <5%, avg ≥75%</td>
+                                <td>Consistent month-to-month performance with minimal fluctuation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>⚡ Quick Recovery</strong></td>
+                                <td>>10% improvement recent 2 months</td>
+                                <td>Strong performance rebound in most recent months</td>
+                            </tr>
+                            <tr>
+                                <td><strong>👑 Excellence Leader</strong></td>
+                                <td>≥95% overall FY 25-26</td>
+                                <td>Outstanding overall performance for the fiscal year</td>
+                            </tr>
+                            <tr>
+                                <td><strong>💎 Elite Performer</strong></td>
+                                <td>Top 5, ≥85% overall</td>
+                                <td>Elite combination of ranking and performance level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">💡 How Badges Work</h4>
+                    <ul style="line-height: 2; margin-left: 20px;">
+                        <li><strong>Automatic Calculation:</strong> Badges are calculated in real-time based on current data</li>
+                        <li><strong>Multiple Badges:</strong> A practice head can earn multiple badges simultaneously</li>
+                        <li><strong>Visual Display:</strong> Badges appear as colorful chips below each practice head card</li>
+                        <li><strong>Hover for Details:</strong> Hover over any badge to see the exact criteria and achievement details</li>
+                        <li><strong>Gamification:</strong> Encourages healthy competition and continuous improvement</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">🎯 Viewing Badges</h4>
+                    <ol style="line-height: 2; margin-left: 20px;">
+                        <li>Navigate to <strong>"Practice Head Analysis"</strong> from the sidebar</li>
+                        <li>Scroll through the practice head cards</li>
+                        <li>View earned badges displayed below each practice head's metrics</li>
+                        <li>Hover over badges to see achievement descriptions</li>
+                    </ol>
+                    
+                    <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #10b981;">
+                        <p style="margin: 0; color: #065f46;"><strong>🌟 Recognition:</strong> The badge system provides transparent, data-driven recognition for practice head excellence and motivates continuous performance improvement!</p>
+                    </div>
+                </div>
                 
                 <div class="card animated-card" style="animation-delay: 0.5s;" id="section-export">
                     <h3><i class="bi bi-download"></i> Export Options</h3>
@@ -7193,6 +7420,21 @@ function showView(view) {
                     
                     <h4 style="margin-top: 20px; color: var(--primary-color);">Q: Will the dashboard automatically update when new monthly data is available?</h4>
                     <p><strong>A:</strong> Yes! The dashboard is future-proof. Once new monthly SLA reports are processed and the data file is updated, simply re-upload the file to the dashboard. The system will automatically detect available months from the data columns and update all views, charts, and filters accordingly. No code changes are required.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">Q: How do I know what the latest data month is?</h4>
+                    <p><strong>A:</strong> Click the notification bell icon (🔔) in the top-right corner of the header. The popup will show you the latest month and year with data from FY 25-26. The system automatically detects this by checking months in reverse order (March, February, January, etc.) and displaying the first month with actual SLA data.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">Q: Can I change the dashboard theme colors?</h4>
+                    <p><strong>A:</strong> Absolutely! The dashboard now offers 4 beautiful gradient themes. Go to the sidebar (above "Data Management") and click on one of the circular theme buttons (Orange, Purple, Red, or Blue-Orange). Your selection is automatically saved and will persist across sessions.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">Q: What are the practice head badges and how are they earned?</h4>
+                    <p><strong>A:</strong> Practice heads automatically earn achievement badges based on their SLA performance. There are 10 different badges including "100% SLA Achiever" (perfect month), "Most Improved" (≥15% YoY improvement), "Consistent High Performer" (≥90% all months), and more. View them in the "Practice Head Analysis" section. Badges appear below each practice head card and hover tooltips explain the criteria.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">Q: Why don't I see gridlines on the charts anymore?</h4>
+                    <p><strong>A:</strong> Gridlines have been removed from all charts for a cleaner, less cluttered appearance. This design improvement helps focus attention on the actual data and trends rather than background elements. The charts now have a more modern, streamlined look while maintaining full readability.</p>
+                    
+                    <h4 style="margin-top: 20px; color: var(--primary-color);">Q: Where can I provide feedback or report issues?</h4>
+                    <p><strong>A:</strong> Click the notification bell (🔔) in the header and you'll see our feedback email: <strong>BusinessExcellence@taggd.in</strong>. We welcome all feedback, bug reports, feature requests, and questions!</p>
                 </div>
                 
                 <div class="card animated-card" style="animation-delay: 0.7s;" id="section-bestpractices">
@@ -7531,13 +7773,134 @@ function showView(view) {
                             <h4 style="color: #ff6b35; margin-bottom: 8px;">⏰ Live Timestamp</h4>
                             <p>Real-time display of last data update for transparency and data freshness tracking</p>
                         </div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #10b981;">
+                            <h4 style="color: #10b981; margin-bottom: 8px;">🔔 Notification Bell</h4>
+                            <p>Click the bell icon in the header to view latest data updates and feedback contact information</p>
+                        </div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #8b5cf6;">
+                            <h4 style="color: #8b5cf6; margin-bottom: 8px;">🎨 Theme Customization</h4>
+                            <p>Choose from 4 beautiful gradient themes (Orange, Purple, Red, Blue-Orange) in the sidebar</p>
+                        </div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                            <h4 style="color: #f59e0b; margin-bottom: 8px;">🏅 Performance Badges</h4>
+                            <p>Practice heads earn achievement badges for excellence, improvement, consistency, and milestones</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- New Features: Voice Control & Timestamp -->
+                <!-- New Features: Comprehensive Feature Guide -->
                 <div class="card animated-card" style="animation-delay: 0.35s; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b;">
-                    <h3 style="color: #92400e;"><i class="bi bi-stars"></i> ✨ New Features</h3>
+                    <h3 style="color: #92400e;"><i class="bi bi-stars"></i> ✨ Recently Added Features</h3>
                     
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #ff6b35; margin-bottom: 10px;"><i class="bi bi-bell-fill"></i> 🔔 Notification Bell & Data Updates</h4>
+                        <p style="line-height: 1.8; margin-bottom: 15px;">
+                            Stay informed about data freshness with the notification bell icon in the dashboard header. Click the bell to view:
+                        </p>
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <ul style="line-height: 2; margin-left: 20px;">
+                                <li><strong>Latest Data Month/Year:</strong> Automatically detects the most recent month with data from FY 25-26</li>
+                                <li><strong>Update Timestamp:</strong> Shows when the data was last refreshed</li>
+                                <li><strong>Feedback Email:</strong> Direct contact to BusinessExcellence@taggd.in for support and feedback</li>
+                                <li><strong>Visual Badge:</strong> Red notification badge (1) indicates there's information to review</li>
+                            </ul>
+                        </div>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; border: 2px dashed #f59e0b;">
+                            <p style="margin: 0; color: #92400e;"><strong>📍 Location:</strong> Top-right corner of the header, next to the dashboard title</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #f59e0b;">
+
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #ff6b35; margin-bottom: 10px;"><i class="bi bi-palette-fill"></i> 🎨 Theme Customization (4 Beautiful Themes)</h4>
+                        <p style="line-height: 1.8; margin-bottom: 15px;">
+                            Personalize your dashboard experience with four stunning gradient themes located in the sidebar above "Data Management":
+                        </p>
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                <div style="padding: 15px; border-radius: 8px; background: linear-gradient(135deg, #3c3530 0%, #ff6b35 100%); color: white; text-align: center;">
+                                    <strong>🟠 Orange Gradient</strong><br>
+                                    <small>Default Theme</small>
+                                </div>
+                                <div style="padding: 15px; border-radius: 8px; background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%); color: white; text-align: center;">
+                                    <strong>🟣 Purple Gradient</strong><br>
+                                    <small>Dark & Elegant</small>
+                                </div>
+                                <div style="padding: 15px; border-radius: 8px; background: linear-gradient(135deg, #8e0e00 0%, #1f1c18 100%); color: white; text-align: center;">
+                                    <strong>🔴 Red Gradient</strong><br>
+                                    <small>Bold & Dramatic</small>
+                                </div>
+                                <div style="padding: 15px; border-radius: 8px; background: linear-gradient(135deg, #0b486b 0%, #f56217 100%); color: white; text-align: center;">
+                                    <strong>🔵 Blue-Orange</strong><br>
+                                    <small>Ocean to Sunset</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; border: 2px dashed #8b5cf6;">
+                            <p style="margin: 0; color: #581c87;"><strong>💡 Features:</strong> Instant preview • Persistent selection (saves to browser) • Dynamic chart colors • All themes fully accessible</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #f59e0b;">
+
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #ff6b35; margin-bottom: 10px;"><i class="bi bi-award-fill"></i> 🏅 Practice Head Performance Badges</h4>
+                        <p style="line-height: 1.8; margin-bottom: 15px;">
+                            Practice heads earn achievement badges based on their SLA performance, improvement, and consistency. Visit the "Practice Head Analysis" view to see all badges in action!
+                        </p>
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                            <h5 style="color: #ff6b35; margin-bottom: 12px;">🎖️ Available Badges (10 Types):</h5>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
+                                <div style="padding: 10px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>⭐ Consistent High Performer</strong><br>
+                                    <small>≥90% all months</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>🚀 Most Improved</strong><br>
+                                    <small>+15% YoY</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>🔥 100% SLA Achiever</strong><br>
+                                    <small>Perfect month</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>🎯 Zero Breach Month</strong><br>
+                                    <small>≥95% any month</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #fbbf24, #eab308); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>🏆 Top Performer</strong><br>
+                                    <small>Rank 1-3</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>📈 Rising Star</strong><br>
+                                    <small>+10% YoY</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>🛡️ Stability Champion</strong><br>
+                                    <small>Consistent monthly</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>⚡ Quick Recovery</strong><br>
+                                    <small>Recent improvement</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #ff6b35, #3c3530); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>👑 Excellence Leader</strong><br>
+                                    <small>≥95% overall</small>
+                                </div>
+                                <div style="padding: 10px; background: linear-gradient(135deg, #ff8c5a, #ff6b35); color: white; border-radius: 6px; text-align: center;">
+                                    <strong>💎 Elite Performer</strong><br>
+                                    <small>Top 5 + ≥85%</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; border: 2px dashed #10b981;">
+                            <p style="margin: 0; color: #065f46;"><strong>✨ Gamification:</strong> Badges motivate continuous improvement • Visual recognition for excellence • Transparent performance criteria • Real-time badge updates</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0; border: none; border-top: 2px dashed #f59e0b;">
+
                     <div style="margin-top: 20px;">
                         <h4 style="color: #ff6b35; margin-bottom: 10px;"><i class="bi bi-mic-fill"></i> 🎤 Voice-Enabled Navigation</h4>
                         <p style="line-height: 1.8; margin-bottom: 15px;">
