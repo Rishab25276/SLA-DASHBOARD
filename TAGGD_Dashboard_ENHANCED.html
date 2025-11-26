@@ -448,20 +448,11 @@
         }
 
         /* Theme Switcher */
-        .theme-switcher {
-            position: absolute;
-            top: 25px;
-            left: 30px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
         .theme-button {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            border: 3px solid white;
+            border: 3px solid var(--border-color);
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -2206,6 +2197,22 @@
         </div>
         
         <div class="sidebar-menu">
+            <!-- Theme Switcher - Moved from Header -->
+            <div style="padding: 20px; text-align: center; border-bottom: 2px solid var(--border-color); margin-bottom: 20px;">
+                <div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 15px; letter-spacing: 1.5px;">🎨 Theme Selection</div>
+                <div style="display: flex; justify-content: center; gap: 15px;">
+                    <div class="theme-button active" id="theme1" onclick="switchTheme('theme1')" title="Orange Gradient">
+                        <span class="theme-label">Orange</span>
+                    </div>
+                    <div class="theme-button" id="theme2" onclick="switchTheme('theme2')" title="Dark Purple Gradient">
+                        <span class="theme-label">Purple</span>
+                    </div>
+                    <div class="theme-button" id="theme3" onclick="switchTheme('theme3')" title="Dark Red Gradient">
+                        <span class="theme-label">Red</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="menu-section-title">Data Management</div>
             <h3>📁 Data Management</h3>
             <div class="menu-item" onclick="speakAndExecute('Upload Your Data', () => { console.log('📤 Upload button clicked'); const input = document.getElementById('fileUpload'); if(input) { console.log('✅ Found input, triggering click'); input.click(); } else { console.error('❌ Input element not found'); } })">
@@ -2289,19 +2296,6 @@
         <input type="file" id="fileUpload" accept=".xlsx,.xls" style="display: none;" />
         
         <div class="header">
-            <!-- Theme Switcher -->
-            <div class="theme-switcher">
-                <div class="theme-button active" id="theme1" onclick="switchTheme('theme1')" title="Orange Gradient">
-                    <span class="theme-label">Orange</span>
-                </div>
-                <div class="theme-button" id="theme2" onclick="switchTheme('theme2')" title="Dark Purple Gradient">
-                    <span class="theme-label">Purple</span>
-                </div>
-                <div class="theme-button" id="theme3" onclick="switchTheme('theme3')" title="Dark Red Gradient">
-                    <span class="theme-label">Red</span>
-                </div>
-            </div>
-
             <h1><i class="bi bi-bar-chart-fill"></i> Taggd SLA/KPI Performance Dashboard</h1>
             <p>Strategic Performance Monitoring & Competitive Intelligence Platform</p>
             
@@ -5380,14 +5374,14 @@ function showView(view) {
                         <div class="chart-container">
                             <canvas id="top5ImprovedChart"></canvas>
                         </div>
-                        <table style="margin-top: 15px;">
+                        <table style="margin-top: 15px; width: 100%; table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th>Rank</th>
-                                    <th>Account</th>
-                                    <th>FY 24-25</th>
-                                    <th>FY 25-26</th>
-                                    <th>Change</th>
+                                    <th style="width: 10%;">Rank</th>
+                                    <th style="width: 40%;">Account</th>
+                                    <th style="width: 17%;">FY 24-25</th>
+                                    <th style="width: 17%;">FY 25-26</th>
+                                    <th style="width: 16%;">Change</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5410,14 +5404,14 @@ function showView(view) {
                         <div class="chart-container">
                             <canvas id="top5DeclinedChart"></canvas>
                         </div>
-                        <table style="margin-top: 15px;">
+                        <table style="margin-top: 15px; width: 100%; table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th>Rank</th>
-                                    <th>Account</th>
-                                    <th>FY 24-25</th>
-                                    <th>FY 25-26</th>
-                                    <th>Change</th>
+                                    <th style="width: 10%;">Rank</th>
+                                    <th style="width: 40%;">Account</th>
+                                    <th style="width: 17%;">FY 24-25</th>
+                                    <th style="width: 17%;">FY 25-26</th>
+                                    <th style="width: 16%;">Change</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5560,8 +5554,8 @@ function showView(view) {
                             legend: { display: false },
                             datalabels: {
                                 anchor: 'end',
-                                align: 'end',
-                                offset: 10,
+                                align: 'start',
+                                offset: -10,
                                 color: '#000000',
                                 backgroundColor: 'rgba(255, 255, 255, 1)',
                                 borderRadius: 6,
@@ -5571,14 +5565,18 @@ function showView(view) {
                                 font: { weight: 'bold', size: 15 },
                                 formatter: (value) => value.toFixed(1) + '%',
                                 display: true,
-                                clip: false
+                                clip: true
                             }
                         },
                         scales: {
                             x: { 
                                 beginAtZero: true,
                                 max: 100,
-                                ticks: { callback: (value) => value + '%' }
+                                ticks: { callback: (value) => value + '%' },
+                                grid: { display: false }
+                            },
+                            y: {
+                                grid: { display: false }
                             }
                         }
                     }
@@ -5623,7 +5621,11 @@ function showView(view) {
                             x: { 
                                 beginAtZero: true,
                                 max: 100,
-                                ticks: { callback: (value) => value + '%' }
+                                ticks: { callback: (value) => value + '%' },
+                                grid: { display: false }
+                            },
+                            y: {
+                                grid: { display: false }
                             }
                         }
                     }
@@ -5665,7 +5667,13 @@ function showView(view) {
                             }
                         },
                         scales: {
-                            x: { beginAtZero: true }
+                            x: { 
+                                beginAtZero: true,
+                                grid: { display: false }
+                            },
+                            y: {
+                                grid: { display: false }
+                            }
                         }
                     }
                 });
@@ -5706,7 +5714,13 @@ function showView(view) {
                             }
                         },
                         scales: {
-                            x: { beginAtZero: true }
+                            x: { 
+                                beginAtZero: true,
+                                grid: { display: false }
+                            },
+                            y: {
+                                grid: { display: false }
+                            }
                         }
                     }
                 });
@@ -5893,7 +5907,7 @@ function showView(view) {
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                display: false
                             }
                         }
                     }
@@ -6087,7 +6101,7 @@ function showView(view) {
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                display: false
                             }
                         }
                     }
@@ -6378,7 +6392,7 @@ function showView(view) {
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                display: false
                             }
                         },
                         x: {
@@ -6545,7 +6559,7 @@ function showView(view) {
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                display: false
                             }
                         }
                     }
@@ -7395,7 +7409,7 @@ function showView(view) {
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                display: false
                             }
                         }
                     }
