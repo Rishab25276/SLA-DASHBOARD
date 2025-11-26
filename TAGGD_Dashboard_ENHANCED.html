@@ -2751,13 +2751,39 @@ let rawData = null;
         let audioEnabled = false;
 
         let audioLanguage = 'en-US'; // Default to English
+        let voicesLoaded = false;
+        
+        // Load voices when available
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                voicesLoaded = true;
+            };
+            // Try to load voices immediately
+            window.speechSynthesis.getVoices();
+        }
         
         function changeAudioLanguage() {
             audioLanguage = document.getElementById('audioLanguage').value;
             const langName = audioLanguage === 'hi-IN' ? 'Hindi' : 'English';
-            showToast(`Audio language changed to ${langName}`);
-            if (audioEnabled) {
-                speak(`Audio language changed to ${langName}`);
+            
+            // Check if selected language voice is available
+            const voices = window.speechSynthesis.getVoices();
+            const hasVoice = voices.some(voice => voice.lang.startsWith(audioLanguage.split('-')[0]));
+            
+            if (audioLanguage === 'hi-IN' && !hasVoice) {
+                showToast(`⚠️ Audio language set to ${langName}, but Hindi voice may not be available. Install Hindi language pack in your browser for Hindi audio.`);
+                if (audioEnabled) {
+                    // Speak in English to inform about the limitation
+                    const tempLang = audioLanguage;
+                    audioLanguage = 'en-US';
+                    speak('Hindi voice not available. Please install Hindi language pack in your browser settings.');
+                    audioLanguage = tempLang;
+                }
+            } else {
+                showToast(`Audio language changed to ${langName}`);
+                if (audioEnabled) {
+                    speak(`Audio language changed to ${langName}`);
+                }
             }
         }
 
@@ -3159,6 +3185,18 @@ let rawData = null;
             utterance.rate = 1.0;
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
+            
+            // Try to find a voice that matches the selected language
+            const voices = window.speechSynthesis.getVoices();
+            const matchingVoice = voices.find(voice => voice.lang.startsWith(audioLanguage.split('-')[0]));
+            if (matchingVoice) {
+                utterance.voice = matchingVoice;
+            } else if (audioLanguage === 'hi-IN') {
+                // If Hindi is selected but no Hindi voice available, show a warning
+                console.warn('Hindi voice not available. Please install Hindi language pack in your browser.');
+                showToast('⚠️ Hindi voice not available. Using default voice.', 'warning');
+            }
+            
             window.speechSynthesis.speak(utterance);
         }
 
@@ -4392,6 +4430,14 @@ function showView(view) {
         
         // Helper function to dynamically extract months from data
         function extractMonthsFromData(data2425, data2526) {
+            // If month filter is active and not 'all', return only that month
+            if (activeFilters.month && activeFilters.month !== 'all' && activeFilters.month !== 'All') {
+                const selectedMonth = activeFilters.month;
+                // Normalize the selected month (e.g., "June" -> "Jun")
+                const normalizedMonth = normalizeMonthName(selectedMonth);
+                return [normalizedMonth];
+            }
+            
             const monthsSet = new Set();
             
             // Extract from FY 24-25 data
