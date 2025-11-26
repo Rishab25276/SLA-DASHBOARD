@@ -3067,14 +3067,14 @@ let rawData = null;
             drawBorder: true
         };
         
-        // Set light grey background for all charts with better data label visibility
+        // Set white background for all charts
         Chart.defaults.plugins.beforeDraw = {
             id: 'chartBackground',
             beforeDraw: (chart) => {
                 const ctx = chart.canvas.getContext('2d');
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-over';
-                ctx.fillStyle = '#F5F5F5';  // Light grey background
+                ctx.fillStyle = '#FFFFFF';  // White background
                 ctx.fillRect(0, 0, chart.width, chart.height);
                 ctx.restore();
             }
@@ -3088,7 +3088,7 @@ let rawData = null;
                     const ctx = chart.canvas.getContext('2d');
                     ctx.save();
                     ctx.globalCompositeOperation = 'destination-over';
-                    ctx.fillStyle = '#F5F5F5';  // Light grey background
+                    ctx.fillStyle = '#FFFFFF';  // White background
                     ctx.fillRect(0, 0, chart.width, chart.height);
                     ctx.restore();
                 }
@@ -5367,8 +5367,8 @@ function showView(view) {
                         {
                             label: 'FY 24-25',
                             data: fy24DataToShow,
-                            borderColor: '#FF6B35',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderColor: '#2C1B18',  // Dark brown from gradient
+                            backgroundColor: 'rgba(44, 27, 24, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4,
@@ -5378,14 +5378,14 @@ function showView(view) {
                         {
                             label: `FY 25-26 (${fy25months.join('-')})`,
                             data: fy25DataToShow,
-                            borderColor: '#FF6B35',
-                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            borderColor: '#F05A28',  // Vibrant orange from gradient
+                            backgroundColor: 'rgba(240, 90, 40, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4,
                             pointRadius: 5,
                             pointHoverRadius: 7,
-                            borderDash: [0, 0, 0, 0, 0, 0, 5, 5],
+                            borderDash: [5, 5],  // Dashed line for FY 25-26
                             spanGaps: false  // Don't connect null values
                         }
                     ]
