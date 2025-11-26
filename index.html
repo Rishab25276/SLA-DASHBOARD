@@ -42,7 +42,7 @@
             --shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.2);
             --bg-body: #f5f5f5;
             --card-bg: #ffffff;
-            --header-bg: linear-gradient(135deg, #3a1c71 0%, #d76d77 50%, #ffaf7b 100%);
+            --header-bg: linear-gradient(135deg, #3c3530 0%, #ff6b35 100%);
             --sidebar-bg: #ffffff;
             --sidebar-hover: #f5f5f5;
         }
@@ -445,6 +445,75 @@
 
         .notification-footer a:hover {
             text-decoration: underline;
+        }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            position: absolute;
+            top: 25px;
+            left: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .theme-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .theme-button.active {
+            border-width: 5px;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .theme-button.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #theme1 {
+            background: linear-gradient(135deg, #3c3530 0%, #ff6b35 100%);
+        }
+
+        #theme2 {
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+        }
+
+        #theme3 {
+            background: linear-gradient(135deg, #8e0e00 0%, #1f1c18 100%);
+        }
+
+        .theme-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: white;
+            white-space: nowrap;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            font-weight: 600;
         }
 
         /* Enhanced Filter Section */
@@ -2220,6 +2289,19 @@
         <input type="file" id="fileUpload" accept=".xlsx,.xls" style="display: none;" />
         
         <div class="header">
+            <!-- Theme Switcher -->
+            <div class="theme-switcher">
+                <div class="theme-button active" id="theme1" onclick="switchTheme('theme1')" title="Orange Gradient">
+                    <span class="theme-label">Orange</span>
+                </div>
+                <div class="theme-button" id="theme2" onclick="switchTheme('theme2')" title="Dark Purple Gradient">
+                    <span class="theme-label">Purple</span>
+                </div>
+                <div class="theme-button" id="theme3" onclick="switchTheme('theme3')" title="Dark Red Gradient">
+                    <span class="theme-label">Red</span>
+                </div>
+            </div>
+
             <h1><i class="bi bi-bar-chart-fill"></i> Taggd SLA/KPI Performance Dashboard</h1>
             <p>Strategic Performance Monitoring & Competitive Intelligence Platform</p>
             
@@ -2572,6 +2654,98 @@
                 document.getElementById('updateTimestamp').textContent = 'Please refresh the page';
             }
         }
+
+        // ============================================================================
+        // THEME SWITCHER
+        // ============================================================================
+        
+        const themes = {
+            theme1: {
+                name: 'Orange Gradient',
+                colors: {
+                    primary: '#ff6b35',
+                    primaryLight: '#ff8c5a',
+                    primaryDark: '#e65528',
+                    secondary: '#3c3530',
+                    headerBg: 'linear-gradient(135deg, #3c3530 0%, #ff6b35 100%)'
+                }
+            },
+            theme2: {
+                name: 'Dark Purple Gradient',
+                colors: {
+                    primary: '#1f1c2c',
+                    primaryLight: '#4a4560',
+                    primaryDark: '#151320',
+                    secondary: '#928dab',
+                    headerBg: 'linear-gradient(135deg, #1f1c2c 0%, #928dab 100%)'
+                }
+            },
+            theme3: {
+                name: 'Dark Red Gradient',
+                colors: {
+                    primary: '#8e0e00',
+                    primaryLight: '#b91c1c',
+                    primaryDark: '#6b0000',
+                    secondary: '#1f1c18',
+                    headerBg: 'linear-gradient(135deg, #8e0e00 0%, #1f1c18 100%)'
+                }
+            }
+        };
+
+        let currentTheme = 'theme1';
+
+        function switchTheme(themeId) {
+            const theme = themes[themeId];
+            if (!theme) return;
+
+            // Update active state
+            document.querySelectorAll('.theme-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(themeId).classList.add('active');
+
+            // Update CSS variables
+            const root = document.documentElement;
+            root.style.setProperty('--primary-color', theme.colors.primary);
+            root.style.setProperty('--primary-light', theme.colors.primaryLight);
+            root.style.setProperty('--primary-dark', theme.colors.primaryDark);
+            root.style.setProperty('--secondary-color', theme.colors.secondary);
+            root.style.setProperty('--header-bg', theme.colors.headerBg);
+
+            // Update all charts with new colors
+            currentTheme = themeId;
+            
+            // Save preference
+            localStorage.setItem('dashboardTheme', themeId);
+
+            // Refresh current view to apply theme to charts
+            const currentView = document.querySelector('.sidebar button.active');
+            if (currentView && currentView.onclick) {
+                currentView.onclick();
+            }
+        }
+
+        // Helper function to get current theme color
+        function getThemeColor(type = 'primary') {
+            const theme = themes[currentTheme];
+            if (!theme) return '#ff6b35'; // fallback
+            
+            switch(type) {
+                case 'primary': return theme.colors.primary;
+                case 'primaryLight': return theme.colors.primaryLight;
+                case 'primaryDark': return theme.colors.primaryDark;
+                case 'secondary': return theme.colors.secondary;
+                default: return theme.colors.primary;
+            }
+        }
+
+        // Load saved theme on page load
+        window.addEventListener('load', function() {
+            const savedTheme = localStorage.getItem('dashboardTheme');
+            if (savedTheme && themes[savedTheme]) {
+                switchTheme(savedTheme);
+            }
+        });
 
         // ============================================================================
         // FEATURE 2: VOICE-ENABLED NAVIGATION
@@ -6147,26 +6321,26 @@ function showView(view) {
                         {
                             label: 'FY 24-25',
                             data: fy24Values,
-                            borderColor: '#ff6b35',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderColor: '#9CA3AF',
+                            backgroundColor: 'rgba(156, 163, 175, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4,
                             pointRadius: 5,
                             pointHoverRadius: 7,
-                            pointBackgroundColor: '#ff6b35'
+                            pointBackgroundColor: '#9CA3AF'
                         },
                         {
                             label: 'FY 25-26',
                             data: fy25Values,
-                            borderColor: '#ff6b35',
+                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#ff6b35',
                             backgroundColor: 'rgba(255, 107, 53, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4,
                             pointRadius: 5,
                             pointHoverRadius: 7,
-                            pointBackgroundColor: '#ff6b35'
+                            pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#ff6b35'
                         }
                     ]
                 },
