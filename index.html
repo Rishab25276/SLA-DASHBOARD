@@ -4705,13 +4705,28 @@ function renderNotReportedCharts() {
     
     // Month-wise trend
     const months = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'March'];
+    
+    // Dynamically detect which months have data in FY25-26
+    const availableMonthsSet = new Set();
+    Object.values(filteredFY25).forEach(item => {
+        Object.keys(item.months).forEach(month => {
+            if (item.months[month] > 0 || item.months[month] === 0) {
+                availableMonthsSet.add(month);
+            }
+        });
+    });
+    
+    // Create FY24 data (all 12 months)
     const fy24Data = months.map(month => {
         return Object.values(filteredFY24).reduce((sum, item) => sum + (item.months[month] || 0), 0);
     });
     
-    const fy25Months = ['April', 'May', 'June', 'July', 'Aug', 'Sep'];
-    const fy25Data = fy25Months.map(month => {
-        return Object.values(filteredFY25).reduce((sum, item) => sum + (item.months[month] || 0), 0);
+    // Create FY25 data - only populate months that exist in the data, rest as null
+    const fy25Data = months.map(month => {
+        if (availableMonthsSet.has(month)) {
+            return Object.values(filteredFY25).reduce((sum, item) => sum + (item.months[month] || 0), 0);
+        }
+        return null;  // Return null for months without data
     });
     
     // Trend Chart
@@ -4730,7 +4745,7 @@ function renderNotReportedCharts() {
                     fill: true
                 }, {
                     label: 'FY 2025-26',
-                    data: [...fy25Data, ...Array(6).fill(null)],
+                    data: fy25Data,  // Already has nulls for months without data
                     borderColor: '#ff6b35',
                     backgroundColor: 'rgba(255, 107, 53, 0.1)',
                     tension: 0.4,
