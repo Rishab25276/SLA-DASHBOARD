@@ -3400,6 +3400,16 @@ let rawData = null;
                     fy2425NotReportedData = data.fy2425NotReported || [];
                     fy2526NotReportedData = data.fy2526NotReported || [];
                     
+                    console.log('🔍 Not Reported data loaded from sample_data.json:');
+                    console.log('  - FY24-25 Not Reported:', fy2425NotReportedData.length, 'rows');
+                    console.log('  - FY25-26 Not Reported:', fy2526NotReportedData.length, 'rows');
+                    if (fy2425NotReportedData.length > 0) {
+                        console.log('  - Sample FY24-25 columns:', Object.keys(fy2425NotReportedData[0]));
+                    }
+                    if (fy2526NotReportedData.length > 0) {
+                        console.log('  - Sample FY25-26 columns:', Object.keys(fy2526NotReportedData[0]));
+                    }
+                    
                     parsedData = rawData;
                     
                     console.log('Data loaded, populating filters...');
