@@ -104,10 +104,13 @@ Click "Export Dashboard" to:
 
 ## 🎨 Theme & Design
 
-### Colors Preserved:
+### Updated TAGGD Brand Theme:
 - Primary: TAGGD Orange (#FF6B35)
-- Gradient: Purple to Orange (#3a1c71 → #d76d77 → #ffaf7b)
-- All original RAG colors (Red/Amber/Green)
+- Sidebar Background: Dark Gray/Charcoal (#2a2a2a) - matches TAGGD logo
+- Sidebar Hover: Medium Gray (#3a3a3a)
+- Header: Charcoal Gradient (#3a3a3a → #4a4a4a → #5a5a5a)
+- Border: Subtle Gray (#4a4a4a)
+- All original RAG colors (Red/Amber/Green) preserved
 
 ### Features Preserved:
 ✅ All animations (fadeIn, slideIn, bounceIn, etc.)  
@@ -120,13 +123,23 @@ Click "Export Dashboard" to:
 
 ## 📊 What's Different?
 
-### ONLY Added (Nothing Removed):
+### Recent Updates (v10):
+1. **✅ PDF Export Fixed** - Now shows ALL active filters (FY, month, region, practice, regional head, account) in exported PDFs
+2. **✅ Not Reported Analysis Fixed** - "Not Reported Analysis" view now displays data correctly with FY24-25 and FY25-26 sheets
+3. **✅ Top 15 Projects Fixed** - Corrected sorting to use combined FY totals (M&M now shows correctly at #5 with 74 cases)
+4. **✅ Welcome Message Updated** - Changed to "Welcome, Tagger! You're now accessing the Customer SLA/KPI Performance Dashboard."
+5. **✅ Header/Footer Branding** - Updated to "Taggd SLA/KPI Performance Dashboard" and footer with confidentiality notice
+6. **✅ TAGGD Logo Embedded** - Replaced text with actual PNG logo image in sidebar header
+7. **✅ Brand Colors Updated** - Dashboard background now matches TAGGD logo theme (charcoal/dark gray with orange accent)
+
+### Previously Added (v8-v9):
 1. **New Executive View tab** - Strategic overview
 2. **Enhanced Not Reported View** - Better UI & colors
 3. **Welcome Modal** - First-time user guide
 4. **Fixed Q3 calculation** - Includes October 2025
 5. **Better PDF quality** - 3x resolution
 6. **Cleaner monthly trends** - No future month zeros
+7. **Automatic data loading** - Loads sample data on startup
 
 ### Everything Else: EXACTLY THE SAME
 - Same theme
@@ -200,7 +213,16 @@ See `DATA_UPDATE_GUIDE.md` for comprehensive instructions.
 
 ## 📝 Version History
 
-### v9 Auto-Load (Current)
+### v10 Complete Fix & Brand Update (Current)
+- **FIXED:** PDF export now shows ALL 6 filter types
+- **FIXED:** Not Reported Analysis view displays data correctly
+- **FIXED:** Top 15 Projects sorting uses combined FY totals
+- **UPDATED:** Welcome message and branding text
+- **UPDATED:** Embedded TAGGD logo in sidebar header
+- **UPDATED:** Background colors to match TAGGD logo theme (charcoal/dark gray with orange)
+- All functions validated and working correctly
+
+### v9 Auto-Load
 - **NEW:** Automatic data loading from JSON
 - Dashboard loads sample data on startup
 - No file upload required for demo/sharing
@@ -231,7 +253,7 @@ If you encounter any issues or need additional enhancements:
 
 ---
 
-**Version:** v8 Enhanced  
+**Version:** v10 Complete Fix & Brand Update  
 **Status:** ✅ Ready for Production Use  
-**Theme:** TAGGD Orange/Purple Gradient (Preserved)  
-**All Original Features:** ✅ Intact
+**Theme:** TAGGD Brand (Charcoal/Dark Gray with Orange Accent)  
+**All Functions:** ✅ Validated & Working Correctly
