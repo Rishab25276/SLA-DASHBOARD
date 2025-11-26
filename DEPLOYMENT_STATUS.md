@@ -34,14 +34,22 @@
 
 ## 🐛 Recent Bug Fixes
 
-### Fix #1: June Month Filter (2025-11-26)
+### Fix #1: Overall View Month Filter (2025-11-26) - LATEST
+**Issue:** June/July/March filters not showing data in Overall View and YoY sections  
+**Root Cause:** Redundant month filtering with wrong string comparison logic  
+**Solution:** Removed redundant filter in `calculateOverallMetrics()`, trust `extractMonthsFromData()`  
+**Status:** ✅ Fixed and deployed  
+**Commit:** `cbeded6`  
+**Impact:** All 12 months now work correctly in Overall View
+
+### Fix #2: June Month Filter in Practice View (2025-11-26)
 **Issue:** Selecting "June" from month filter showed no data  
 **Root Cause:** Data file had incomplete June entries  
 **Solution:** Updated `sample_data.json` from Excel file with complete June data  
 **Status:** ✅ Fixed and deployed  
 **Commit:** `3b14a26`
 
-### Fix #2: Hindi Audio (2025-11-26)
+### Fix #3: Hindi Audio (2025-11-26)
 **Issue:** Hindi language selection still played English audio  
 **Root Cause:** No voice detection/selection logic  
 **Solution:** Enhanced `speak()` function with voice detection and user feedback  
