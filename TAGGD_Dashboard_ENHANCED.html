@@ -8742,7 +8742,8 @@ function showView(view) {
                             : '🟡 Stable';
             });
             
-            return Object.values(breakdown).sort((a, b) => b.fy2425 - a.fy2425);
+            // Sort by combined total (FY24-25 + FY25-26) instead of just FY24-25
+            return Object.values(breakdown).sort((a, b) => (b.fy2425 + b.fy2526) - (a.fy2425 + a.fy2526));
         }
         
         // Calculate Not Reported breakdown by Regional Head
@@ -8791,7 +8792,8 @@ function showView(view) {
                             : '🟡 Stable';
             });
             
-            return Object.values(breakdown).sort((a, b) => b.fy2425 - a.fy2425);
+            // Sort by combined total (FY24-25 + FY25-26) instead of just FY24-25
+            return Object.values(breakdown).sort((a, b) => (b.fy2425 + b.fy2526) - (a.fy2425 + a.fy2526));
         }
         
         function calculateMonthlyTrend(data2425, data2526) {
