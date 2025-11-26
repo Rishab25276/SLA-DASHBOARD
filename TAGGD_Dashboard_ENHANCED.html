@@ -5098,8 +5098,13 @@ function showView(view) {
                             datalabels: {
                                 anchor: 'end',
                                 align: 'right',
-                                color: '#fff',
-                                font: { weight: 'bold', size: 12 },
+                                color: function(context) {
+                                    const value = context.dataset.data[context.dataIndex];
+                                    // Use black text on amber (50-74%), white on red/green
+                                    if (value >= 50 && value < 75) return '#000000';
+                                    return '#ffffff';
+                                },
+                                font: { weight: 'bold', size: 14 },
                                 formatter: (value) => value.toFixed(1) + '%'
                             }
                         },
@@ -5183,11 +5188,8 @@ function showView(view) {
                             datalabels: {
                                 anchor: 'end',
                                 align: 'right',
-                                color: '#000',
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                borderRadius: 4,
-                                padding: { top: 4, bottom: 4, left: 6, right: 6 },
-                                font: { weight: 'bold', size: 12 },
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 14 },
                                 formatter: (value) => '+' + value.toFixed(1) + '%',
                                 display: true
                             }
@@ -5223,11 +5225,8 @@ function showView(view) {
                             datalabels: {
                                 anchor: 'end',
                                 align: 'right',
-                                color: '#000',
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                borderRadius: 4,
-                                padding: { top: 4, bottom: 4, left: 6, right: 6 },
-                                font: { weight: 'bold', size: 12 },
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 14 },
                                 formatter: (value) => '-' + value.toFixed(1) + '%',
                                 display: true
                             }
