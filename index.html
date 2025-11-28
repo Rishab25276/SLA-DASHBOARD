@@ -4842,10 +4842,11 @@ function renderNotReportedCharts() {
     const months = ['Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'March'];
     
     // Dynamically detect which months have actual data in FY25-26
+    // Check all filtered accounts to see which months they have data for
     const availableMonthsSet = new Set();
     Object.values(filteredFY25).forEach(item => {
         Object.keys(item.months).forEach(month => {
-            // Only add month if it exists as a key in the data (not checking value)
+            // Only add month if the key exists in the months object
             availableMonthsSet.add(month);
         });
     });
@@ -4859,11 +4860,17 @@ function renderNotReportedCharts() {
     
     // Create FY25 data - only populate months that exist in the data, rest as null
     const fy25Data = months.map(month => {
-        if (availableMonthsSet.has(month)) {
+        // Check if ANY account has this month in their data
+        const hasMonth = availableMonthsSet.has(month);
+        
+        if (hasMonth) {
             const value = Object.values(filteredFY25).reduce((sum, item) => sum + (item.months[month] || 0), 0);
+            console.log(`Month ${month}: has data, value = ${value}`);
             return value;
+        } else {
+            console.log(`Month ${month}: NO data column, returning null`);
+            return null;  // Return null for months without data column
         }
-        return null;  // Return null for months without data
     });
     
     console.log('🔍 Not Reported - FY25 Data Array:', fy25Data);
@@ -10128,7 +10135,16 @@ function showView(view) {
                 });
             }
             
-            return months.map(m => trend[m]);
+            // Return trend data, setting fy2526 to null for months without data columns
+            return months.map(m => {
+                const monthData = trend[m];
+                return {
+                    month: monthData.month,
+                    fy2425: monthData.fy2425,
+                    fy2526: monthData.hasFY2526Data ? monthData.fy2526 : null,  // null if column doesn't exist
+                    hasFY2526Data: monthData.hasFY2526Data
+                };
+            });
         }
         function generateNotReportedTable(data, dimension) {
             const top15 = data.slice(0, 15);
@@ -10550,7 +10566,8 @@ function showView(view) {
                             pointRadius: 5,
                             pointHoverRadius: 7,
                             pointBackgroundColor: '#10b981',
-                            fill: true
+                            fill: true,
+                            spanGaps: false  // Don't connect null values - stop line at last data point
                         }
                     ]
                 },
