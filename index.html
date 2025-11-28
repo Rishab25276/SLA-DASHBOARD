@@ -10527,19 +10527,14 @@ function showView(view) {
             const ctx = document.getElementById('notReportedTrendChart');
             if (!ctx) return null;
             
-            // Show all months up to the last month with FY25-26 data (before first null)
-            const lastDataIndex = trend.findIndex(d => d.fy2526 === null);
-            const labelsToShow = lastDataIndex > 0 
-                ? trend.slice(0, lastDataIndex).map(d => d.month)
-                : trend.map(d => d.month);
+            // Show ALL months (FY 24-25 has complete year, FY 25-26 will have nulls for future months)
+            const labelsToShow = trend.map(d => d.month);
             
-            // Extract data arrays for both fiscal years
-            const fy24Data = lastDataIndex > 0 
-                ? trend.slice(0, lastDataIndex).map(d => d.fy2425)
-                : trend.map(d => d.fy2425);
-            const fy25Data = lastDataIndex > 0
-                ? trend.slice(0, lastDataIndex).map(d => d.fy2526)
-                : trend.map(d => d.fy2526);
+            // FY 24-25: Show all 12 months (complete fiscal year)
+            const fy24Data = trend.map(d => d.fy2425);
+            
+            // FY 25-26: Show actual values for uploaded months, null for future months
+            const fy25Data = trend.map(d => d.fy2526);
             
             return new Chart(ctx, {
                 type: 'line',
