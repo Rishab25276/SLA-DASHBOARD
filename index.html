@@ -9944,10 +9944,23 @@ function showView(view) {
             Object.keys(breakdown).forEach(key => {
                 const item = breakdown[key];
                 item.change = item.fy2526 - item.fy2425;
-                item.pctChange = item.fy2425 > 0 ? ((item.change / item.fy2425) * 100).toFixed(1) : 'N/A';
-                item.trend = item.pctChange !== 'N/A' && parseFloat(item.pctChange) > 10 ? '🔴 Worsening' 
-                            : item.pctChange !== 'N/A' && parseFloat(item.pctChange) < -10 ? '🟢 Improving' 
-                            : '🟡 Stable';
+                
+                // Fixed logic: If FY24-25 was 0 but FY25-26 > 0, this is Worsening, not N/A
+                if (item.fy2425 === 0 && item.fy2526 === 0) {
+                    item.pctChange = 'N/A';
+                    item.trend = '🟡 Stable';
+                } else if (item.fy2425 === 0 && item.fy2526 > 0) {
+                    item.pctChange = 'N/A';
+                    item.trend = '🔴 Worsening';  // New issue appeared
+                } else if (item.fy2425 > 0 && item.fy2526 === 0) {
+                    item.pctChange = '-100.0';
+                    item.trend = '🟢 Improving';  // Issue completely resolved
+                } else {
+                    item.pctChange = ((item.change / item.fy2425) * 100).toFixed(1);
+                    item.trend = parseFloat(item.pctChange) > 10 ? '🔴 Worsening' 
+                                : parseFloat(item.pctChange) < -10 ? '🟢 Improving' 
+                                : '🟡 Stable';
+                }
             });
             
             // Sort by combined total (FY24-25 + FY25-26) instead of just FY24-25
@@ -9994,10 +10007,23 @@ function showView(view) {
             Object.keys(breakdown).forEach(key => {
                 const item = breakdown[key];
                 item.change = item.fy2526 - item.fy2425;
-                item.pctChange = item.fy2425 > 0 ? ((item.change / item.fy2425) * 100).toFixed(1) : 'N/A';
-                item.trend = item.pctChange !== 'N/A' && parseFloat(item.pctChange) > 10 ? '🔴 Worsening' 
-                            : item.pctChange !== 'N/A' && parseFloat(item.pctChange) < -10 ? '🟢 Improving' 
-                            : '🟡 Stable';
+                
+                // Fixed logic: If FY24-25 was 0 but FY25-26 > 0, this is Worsening, not N/A
+                if (item.fy2425 === 0 && item.fy2526 === 0) {
+                    item.pctChange = 'N/A';
+                    item.trend = '🟡 Stable';
+                } else if (item.fy2425 === 0 && item.fy2526 > 0) {
+                    item.pctChange = 'N/A';
+                    item.trend = '🔴 Worsening';  // New issue appeared
+                } else if (item.fy2425 > 0 && item.fy2526 === 0) {
+                    item.pctChange = '-100.0';
+                    item.trend = '🟢 Improving';  // Issue completely resolved
+                } else {
+                    item.pctChange = ((item.change / item.fy2425) * 100).toFixed(1);
+                    item.trend = parseFloat(item.pctChange) > 10 ? '🔴 Worsening' 
+                                : parseFloat(item.pctChange) < -10 ? '🟢 Improving' 
+                                : '🟡 Stable';
+                }
             });
             
             // Sort by combined total (FY24-25 + FY25-26) instead of just FY24-25
@@ -10048,9 +10074,26 @@ function showView(view) {
                 return fiscalOrder.indexOf(a) - fiscalOrder.indexOf(b);
             });
             
+            // Track which months have FY25-26 data columns
+            const fy2526Months = new Set();
+            if (data2526 && data2526.length > 0) {
+                Object.keys(data2526[0]).forEach(key => {
+                    const match = key.match(/^([A-Za-z]+)\s+MET\/NOT_MET_NotReported$/);
+                    if (match) {
+                        const normalizedMonth = normalizeMonthName(match[1]);
+                        fy2526Months.add(normalizedMonth);
+                    }
+                });
+            }
+            
             // Initialize trend structure
             months.forEach(month => {
-                trend[month] = { month, fy2425: 0, fy2526: 0 };
+                trend[month] = { 
+                    month, 
+                    fy2425: 0, 
+                    fy2526: 0,
+                    hasFY2526Data: fy2526Months.has(month)  // Track if this month has FY25-26 column
+                };
             });
             
             // Sum FY 24-25 data using actual column names
@@ -10184,8 +10227,24 @@ function showView(view) {
             trend.forEach((item, idx) => {
                 const bgColor = idx % 2 === 0 ? '#f8f9fa' : 'white';
                 const change = item.fy2526 - item.fy2425;
-                const pctChange = item.fy2425 > 0 ? ((change / item.fy2425) * 100).toFixed(1) : 'N/A';
-                const changeColor = change < 0 ? '#51cf66' : change > 0 ? '#ff6b6b' : '#868e96';
+                
+                // Fixed logic: Only calculate % change when FY25-26 data exists
+                // For future months (no FY25-26 column yet), show N/A
+                let pctChange = 'N/A';
+                let changeColor = '#868e96';  // Gray for N/A
+                
+                // Check if this month has FY25-26 data column (not a future month)
+                if (item.hasFY2526Data) {
+                    // Month has been reported for FY25-26 (column exists in data)
+                    if (item.fy2425 > 0) {
+                        pctChange = ((change / item.fy2425) * 100).toFixed(1);
+                    } else if (item.fy2425 === 0 && item.fy2526 === 0) {
+                        pctChange = '0.0';  // Both are 0
+                    } else {
+                        pctChange = 'N/A';  // FY24 was 0 but FY25 has data
+                    }
+                    changeColor = change < 0 ? '#51cf66' : change > 0 ? '#ff6b6b' : '#868e96';
+                }
                 
                 html += `
                     <tr style="background: ${bgColor};">
