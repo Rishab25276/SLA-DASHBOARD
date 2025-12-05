@@ -8710,7 +8710,7 @@ function showView(view) {
                     const canvas = await html2canvas(contentArea, {
                         scale: 4,  // 4x resolution for ultra high quality (increased from 3)
                         backgroundColor: '#ffffff',
-                        logging: false,  // Disable logging for cleaner output
+                        logging: true,  // TEMPORARILY ENABLED for debugging
                         useCORS: true,
                         allowTaint: true,
                         scrollY: 0,  // Start from top
@@ -8744,23 +8744,40 @@ function showView(view) {
                     const imgWidth = contentWidth;
                     const imgHeight = (canvas.height * imgWidth) / canvas.width;
                     
+                    // Debug: Check canvas and image data
+                    console.log('📸 Canvas dimensions:', canvas.width, 'x', canvas.height);
+                    console.log('📸 Image data length:', imgData.length, 'characters');
+                    console.log('📸 PDF image dimensions:', imgWidth, 'x', imgHeight, 'mm');
+                    console.log('📸 Image data preview:', imgData.substring(0, 100));
+                    
                     let heightLeft = imgHeight;
                     let position = yPos;
                     
-                    if (heightLeft <= pageHeight - position - margin) {
-                        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight, '', 'SLOW');
-                    } else {
-                        const firstPageHeight = pageHeight - position - margin;
-                        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, firstPageHeight, '', 'SLOW');
-                        heightLeft -= firstPageHeight;
-                        
-                        while (heightLeft > 0) {
-                            pdf.addPage();
-                            position = margin;
-                            const nextHeight = Math.min(heightLeft, pageHeight - 2 * margin);
-                            pdf.addImage(imgData, 'PNG', margin, position, imgWidth, nextHeight, '', 'SLOW');
-                            heightLeft -= nextHeight;
+                    try {
+                        if (heightLeft <= pageHeight - position - margin) {
+                            console.log('📄 Adding image to single page');
+                            pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight, '', 'SLOW');
+                        } else {
+                            console.log('📄 Image too tall, spanning multiple pages');
+                            const firstPageHeight = pageHeight - position - margin;
+                            pdf.addImage(imgData, 'PNG', margin, position, imgWidth, firstPageHeight, '', 'SLOW');
+                            heightLeft -= firstPageHeight;
+                            
+                            let pageCount = 1;
+                            while (heightLeft > 0) {
+                                pdf.addPage();
+                                position = margin;
+                                const nextHeight = Math.min(heightLeft, pageHeight - 2 * margin);
+                                console.log(`📄 Adding continuation to page ${++pageCount}, height: ${nextHeight}mm`);
+                                pdf.addImage(imgData, 'PNG', margin, position, imgWidth, nextHeight, '', 'SLOW');
+                                heightLeft -= nextHeight;
+                            }
                         }
+                        console.log('✅ Image successfully added to PDF');
+                    } catch (imgError) {
+                        console.error('❌ ERROR adding image to PDF:', imgError);
+                        console.error('Image data length:', imgData.length);
+                        console.error('Image dimensions:', imgWidth, 'x', imgHeight);
                     }
                     
                     contentArea.style.background = originalBg;
