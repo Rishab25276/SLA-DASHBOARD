@@ -730,7 +730,7 @@
         }
 
         button.clear-filters-btn {
-            background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-light) 50%, var(--danger-lighter) 100%);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 50%, var(--primary-light) 100%);
             color: #ffffff;
             font-weight: 600;
             border: none;
@@ -738,13 +738,9 @@
         }
         
         button.clear-filters-btn:hover {
-            background: linear-gradient(135deg, var(--danger-dark) 0%, var(--danger-color) 50%, var(--danger-light) 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 50%, var(--primary-light) 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        }
-        
-        [data-theme="dark"] button.clear-filters-btn:hover {
-            box-shadow: 0 4px 12px rgba(248, 113, 113, 0.4);
+            box-shadow: var(--shadow-md);
         }
 
         /* Dashboard Grid */
