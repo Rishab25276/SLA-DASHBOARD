@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>TAGGD - Customer SLA/KPI Performance Dashboard</title>
     
     <!-- External Libraries -->
@@ -1061,6 +1064,67 @@
 
             .menu-item span {
                 font-size: 0.9em;
+            }
+            
+            /* Mobile-responsive notification bell */
+            .notification-bell {
+                top: 15px;
+                right: 15px;
+                z-index: 1100;
+            }
+            
+            .notification-bell i {
+                font-size: 24px;
+            }
+            
+            .notification-badge {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+            }
+            
+            .notification-popup {
+                top: 55px;
+                right: 10px;
+                width: calc(100vw - 20px);
+                max-width: 380px;
+            }
+            
+            /* Mobile-responsive header */
+            .header {
+                padding: 20px 15px;
+                padding-right: 60px; /* Make room for bell icon */
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+                margin-bottom: 5px;
+            }
+            
+            .header p {
+                font-size: 0.85em;
+            }
+            
+            /* Mobile-responsive drill-down panel */
+            #drilldownPanel > div {
+                margin: 20px auto !important;
+                max-width: 98% !important;
+                padding: 15px !important;
+                max-height: calc(100vh - 40px) !important;
+            }
+            
+            #drilldownPanel #drilldownTitle {
+                font-size: 1.1em !important;
+            }
+            
+            #drilldownPanel table {
+                font-size: 0.85em;
+            }
+            
+            #drilldownPanel th,
+            #drilldownPanel td {
+                padding: 8px 4px !important;
+                font-size: 0.75em;
             }
         }
 
