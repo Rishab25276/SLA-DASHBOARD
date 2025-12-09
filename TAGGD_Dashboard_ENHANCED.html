@@ -2417,6 +2417,17 @@
         Your browser does not support the audio element.
     </audio>
 
+    <!-- Project Drill-Down Modal -->
+    <div id="drilldownPanel" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; overflow-y: auto;">
+        <div style="background: var(--card-bg); margin: 50px auto; max-width: 95%; max-height: calc(100vh - 100px); overflow-y: auto; border-radius: 12px; padding: 30px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; background: var(--card-bg); z-index: 100; padding-bottom: 15px; border-bottom: 2px solid var(--primary-color);">
+                <h2 id="drilldownTitle" style="margin: 0; color: var(--primary-color);"></h2>
+                <button onclick="closeDrilldown()" style="font-size: 2em; background: none; border: none; cursor: pointer; color: var(--text-primary); line-height: 1; padding: 0 10px;" title="Close">×</button>
+            </div>
+            <div id="drilldownContent"></div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="main-content">
         <input type="file" id="fileUpload" accept=".xlsx,.xls" style="display: none;" />
@@ -3309,6 +3320,7 @@ const processedNotReported = processNotReportedData();
 let rawData = null;
         let fy2425NotReportedData = [];
         let fy2526NotReportedData = [];
+        let metricsDetailsData = [];  // FY 25-26 Metrics Details for drill-down
         let parsedData = null;
         let filteredData = null;
         let currentView = 'overview';
@@ -4106,9 +4118,13 @@ let rawData = null;
                     fy2425NotReportedData = data.fy24_25_not_reported || [];
                     fy2526NotReportedData = data.fy25_26_not_reported || [];
                     
+                    // Load Metrics Details for drill-down
+                    metricsDetailsData = data.fy25_26_metrics_details || [];
+                    
                     console.log('🔍 Not Reported data loaded from sample_data.json:');
                     console.log('  - FY24-25 Not Reported:', fy2425NotReportedData.length, 'rows');
                     console.log('  - FY25-26 Not Reported:', fy2526NotReportedData.length, 'rows');
+                    console.log('  - FY25-26 Metrics Details:', metricsDetailsData.length, 'performance measures');
                     if (fy2425NotReportedData.length > 0) {
                         console.log('  - Sample FY24-25 columns:', Object.keys(fy2425NotReportedData[0]));
                     }
@@ -4223,6 +4239,18 @@ let rawData = null;
                         }
                     } else {
                         console.warn('⚠️ Sheet "FY25-26 Not Reported" not found in workbook!');
+                    }
+                    
+                    // Load FY 25-26 Metrics Details for drill-down
+                    if (workbook.Sheets['FY 25-26 Metrics Details ']) {
+                        metricsDetailsData = XLSX.utils.sheet_to_json(workbook.Sheets['FY 25-26 Metrics Details ']);
+                        console.log('✅ FY 25-26 Metrics Details loaded:', metricsDetailsData.length, 'performance measures');
+                        if (metricsDetailsData.length > 0) {
+                            console.log('Sample metrics columns:', Object.keys(metricsDetailsData[0]));
+                        }
+                    } else {
+                        console.warn('⚠️ Sheet "FY 25-26 Metrics Details " not found - drill-down will not be available');
+                        metricsDetailsData = [];
                     }
                     
                     console.log('FY 24-25 rows:', fy24_25.length);
@@ -6645,8 +6673,12 @@ function showView(view) {
                 const fy25Display = data.fy25Compliance > 0 ? formatPercentageWithRAG(data.fy25Compliance) : 'N/A';
                 const changeDisplay = formatYoYChange(data.fy24Compliance, data.fy25Compliance);
                 
-                tableHTML += `<tr>
-                    <td><strong>${data.account}</strong></td>
+                const escapedAccount = data.account.replace(/'/g, "\\'");
+                tableHTML += `<tr onclick="showProjectDrilldown('${escapedAccount}')" style="cursor: pointer; transition: background 0.2s ease;" 
+                    onmouseover="this.style.background='var(--sidebar-hover)'" 
+                    onmouseout="this.style.background=''"
+                    title="Click to view detailed performance measures">
+                    <td><strong>${data.account} <i class="bi bi-box-arrow-up-right" style="font-size: 0.75em; color: var(--primary-color); margin-left: 5px;"></i></strong></td>
                     <td>${data.region}</td>
                     <td>${data.practice}</td>
                     <td>${fy24Display}</td>
@@ -9511,10 +9543,204 @@ function showView(view) {
             }, 10);
         }
 
-        // Close drill-down modal
+        // Project Drill-Down: Show detailed performance measures
+        function showProjectDrilldown(projectName) {
+            console.log('🔍 Opening drill-down for:', projectName);
+            
+            if (!metricsDetailsData || metricsDetailsData.length === 0) {
+                alert('⚠️ Detailed metrics data not available. Please upload the updated Excel file with "FY 25-26 Metrics Details" sheet.');
+                return;
+            }
+            
+            // For Pfizer - aggregate all Pfizer entities
+            let projectData;
+            if (projectName === 'Pfizer') {
+                projectData = metricsDetailsData.filter(row => 
+                    row.Project && row.Project.toLowerCase().includes('pfizer')
+                );
+            }
+            // For WTW - aggregate all WTW entities  
+            else if (projectName.includes('WTW')) {
+                projectData = metricsDetailsData.filter(row =>
+                    row.Project && row.Project.includes('WTW')
+                );
+            }
+            // For other projects - exact match
+            else {
+                projectData = metricsDetailsData.filter(row => row.Project === projectName);
+            }
+            
+            if (!projectData || projectData.length === 0) {
+                alert(`ℹ️ No detailed performance measures found for "${projectName}".\n\nThis could mean:\n• The project is not in the FY 25-26 Metrics Details sheet\n• The project name doesn't match exactly`);
+                return;
+            }
+            
+            // Build drill-down HTML
+            let html = `
+                <div style="background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%); padding: 20px; border-radius: 8px; margin-bottom: 30px; color: white;">
+                    <h3 style="margin: 0 0 10px 0; color: white;"><i class="bi bi-bar-chart-line"></i> Performance Measures Overview</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <div>
+                            <small style="opacity: 0.9;">Total Measures</small>
+                            <div style="font-size: 1.5em; font-weight: bold;">${projectData.length}</div>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.9;">Region</small>
+                            <div style="font-size: 1.2em; font-weight: 600;">${projectData[0].Region}</div>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.9;">Practice Head</small>
+                            <div style="font-size: 1.2em; font-weight: 600;">${projectData[0]['Practice Head']}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <table style="font-size: 0.85em; width: 100%;">
+                        <thead>
+                            <tr style="position: sticky; top: 0; background: var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
+                                <th style="min-width: 250px; text-align: left; padding: 12px 15px;">Performance Measure</th>
+                                <th style="min-width: 80px;">Target</th>
+                                <th style="min-width: 90px;">Apr'25</th>
+                                <th style="min-width: 90px;">May'25</th>
+                                <th style="min-width: 90px;">Jun'25</th>
+                                <th style="min-width: 90px;">Jul'25</th>
+                                <th style="min-width: 90px;">Aug'25</th>
+                                <th style="min-width: 90px;">Sep'25</th>
+                                <th style="min-width: 90px;">Oct'25</th>
+                                <th style="min-width: 100px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">YTD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            // Group by entity if Pfizer or WTW
+            if (projectName === 'Pfizer' || projectName.includes('WTW')) {
+                const entityGroups = {};
+                projectData.forEach(row => {
+                    const entity = row.Project;
+                    if (!entityGroups[entity]) entityGroups[entity] = [];
+                    entityGroups[entity].push(row);
+                });
+                
+                Object.keys(entityGroups).sort().forEach((entity, idx) => {
+                    const colors = [
+                        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+                    ];
+                    const entityColor = colors[idx % colors.length];
+                    
+                    html += `
+                        <tr style="background: ${entityColor}; color: white;">
+                            <td colspan="10" style="font-weight: bold; padding: 12px 15px; font-size: 1.05em;">
+                                <i class="bi bi-building-fill"></i> ${entity} (${entityGroups[entity].length} measures)
+                            </td>
+                        </tr>
+                    `;
+                    
+                    entityGroups[entity].forEach(measure => {
+                        html += generateMeasureRow(measure);
+                    });
+                });
+            } else {
+                projectData.forEach(measure => {
+                    html += generateMeasureRow(measure);
+                });
+            }
+            
+            html += '</tbody></table></div>';
+            
+            document.getElementById('drilldownTitle').innerHTML = 
+                `<i class="bi bi-clipboard-data"></i> ${projectName} - Detailed Performance Metrics (FY 25-26)`;
+            document.getElementById('drilldownContent').innerHTML = html;
+            document.getElementById('drilldownPanel').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function generateMeasureRow(measure) {
+            const months = [
+                {name: 'April', scoreCol: 'April25 Score', statusCol: 'April MET/NOT_MET'},
+                {name: 'May', scoreCol: 'May25 Score', statusCol: 'May MET/NOT_MET'},
+                {name: 'June', scoreCol: 'June25 Score', statusCol: 'June MET/NOT_MET'},
+                {name: 'July', scoreCol: 'July25 Score', statusCol: 'July MET/NOT_MET'},
+                {name: 'Aug', scoreCol: 'Aug25 Score', statusCol: 'Aug MET/NOT_MET'},
+                {name: 'Sep', scoreCol: 'Sep25 Score', statusCol: 'Sep MET/NOT_MET'},
+                {name: 'Oct', scoreCol: 'Oct25 Score', statusCol: 'Oct MET/NOT_MET'}
+            ];
+            
+            let row = `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="text-align: left; padding: 12px 15px; font-weight: 500;">
+                        ${measure['Performance Measure '] || '-'}
+                    </td>
+                    <td style="text-align: center; padding: 12px 8px;">${measure['Target'] || '-'}</td>
+            `;
+            
+            months.forEach(month => {
+                const score = measure[month.scoreCol] || '-';
+                const status = measure[month.statusCol] || '-';
+                
+                const bgColor = status === 'Met' ? '#d1fae5' : 
+                               status === 'Not Met' ? '#ffe4e6' : 
+                               status === 'NA' || status === 'Not Reported' ? '#f3f4f6' :
+                               '#fff';
+                const textColor = status === 'Met' ? '#065f46' :
+                                 status === 'Not Met' ? '#991b1b' :
+                                 '#6b7280';
+                const icon = status === 'Met' ? '✓' : 
+                            status === 'Not Met' ? '✗' : 
+                            status === 'NA' || status === 'Not Reported' ? '-' : '';
+                
+                row += `
+                    <td style="background: ${bgColor}; color: ${textColor}; text-align: center; padding: 8px; font-weight: 500;">
+                        <div style="font-size: 0.95em;">${score}</div>
+                        <small style="font-size: 0.7em; display: block; margin-top: 2px;">${icon} ${status}</small>
+                    </td>
+                `;
+            });
+            
+            // YTD column
+            const ytdScore = measure['YTD Score'] || '-';
+            const ytdStatus = measure['YTD MET/NOT_MET'] || '-';
+            const ytdBg = ytdStatus === 'Met' ? '#dbeafe' : 
+                          ytdStatus === 'Not Met' ? '#fee2e2' : 
+                          ytdStatus === 'NA' || ytdStatus === 'Not Reported' ? '#f3f4f6' :
+                          '#fff';
+            const ytdColor = ytdStatus === 'Met' ? '#1e40af' :
+                             ytdStatus === 'Not Met' ? '#991b1b' :
+                             '#6b7280';
+            const ytdIcon = ytdStatus === 'Met' ? '✓' : 
+                           ytdStatus === 'Not Met' ? '✗' : 
+                           ytdStatus === 'NA' || ytdStatus === 'Not Reported' ? '-' : '';
+            
+            row += `
+                    <td style="background: ${ytdBg}; color: ${ytdColor}; text-align: center; padding: 8px; font-weight: bold;">
+                        <div style="font-size: 1.05em;">${ytdScore}</div>
+                        <small style="font-size: 0.75em; display: block; margin-top: 2px;">${ytdIcon} ${ytdStatus}</small>
+                    </td>
+                </tr>
+            `;
+            
+            return row;
+        }
+
+        // Close drill-down modal (updated to handle both modals)
         function closeDrilldown() {
+            // Close project drill-down modal
+            const projectModal = document.getElementById('drilldownPanel');
+            if (projectModal) {
+                projectModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            // Close existing drill-down modal
             const modal = document.getElementById('drilldownModal');
-            modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // Close on outside click

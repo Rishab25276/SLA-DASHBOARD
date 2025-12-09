@@ -2417,6 +2417,17 @@
         Your browser does not support the audio element.
     </audio>
 
+    <!-- Project Drill-Down Modal -->
+    <div id="drilldownPanel" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; overflow-y: auto;">
+        <div style="background: var(--card-bg); margin: 50px auto; max-width: 95%; max-height: calc(100vh - 100px); overflow-y: auto; border-radius: 12px; padding: 30px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; background: var(--card-bg); z-index: 100; padding-bottom: 15px; border-bottom: 2px solid var(--primary-color);">
+                <h2 id="drilldownTitle" style="margin: 0; color: var(--primary-color);"></h2>
+                <button onclick="closeDrilldown()" style="font-size: 2em; background: none; border: none; cursor: pointer; color: var(--text-primary); line-height: 1; padding: 0 10px;" title="Close">×</button>
+            </div>
+            <div id="drilldownContent"></div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="main-content">
         <input type="file" id="fileUpload" accept=".xlsx,.xls" style="display: none;" />
@@ -2428,7 +2439,7 @@
             <!-- Notification Bell Icon -->
             <div class="notification-bell" onclick="toggleNotification()">
                 <i class="bi bi-bell-fill"></i>
-                <span class="notification-badge">1</span>
+                <span class="notification-badge">2</span>
             </div>
 
             <!-- Notification Popup -->
@@ -2437,6 +2448,17 @@
                     <i class="bi bi-bell"></i> Data Update Notification
                 </div>
                 <div class="notification-body">
+                    <div class="notification-item" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #ff6b35;">
+                        <div class="notification-item-title" style="color: #92400e;">
+                            <i class="bi bi-stars"></i> ✨ NEW Feature: Project Drill-Down!
+                        </div>
+                        <div class="notification-item-content" style="color: #78350f;">
+                            Click any project in <strong>Project Analysis</strong> to view detailed month-by-month performance measures along with metrics!
+                        </div>
+                        <div class="notification-item-date" style="color: #92400e;">
+                            <i class="bi bi-book"></i> See <a href="javascript:void(0)" onclick="showView('manual'); toggleNotification();" style="color: #ff6b35; font-weight: 600;">User Manual</a> for details
+                        </div>
+                    </div>
                     <div class="notification-item">
                         <div class="notification-item-title">
                             <i class="bi bi-calendar-check"></i> Latest Data Update
@@ -3309,6 +3331,7 @@ const processedNotReported = processNotReportedData();
 let rawData = null;
         let fy2425NotReportedData = [];
         let fy2526NotReportedData = [];
+        let metricsDetailsData = [];  // FY 25-26 Metrics Details for drill-down
         let parsedData = null;
         let filteredData = null;
         let currentView = 'overview';
@@ -3316,6 +3339,9 @@ let rawData = null;
         let audioEnabled = false;
         let musicEnabled = false;
         let backgroundMusic = null;
+        
+        // Make metricsDetailsData globally accessible for debugging
+        window.metricsDetailsData = metricsDetailsData;
 
         let audioLanguage = 'en-US'; // Default to English
         let voicesLoaded = false;
@@ -4106,9 +4132,26 @@ let rawData = null;
                     fy2425NotReportedData = data.fy24_25_not_reported || [];
                     fy2526NotReportedData = data.fy25_26_not_reported || [];
                     
+                    // Load Metrics Details for drill-down
+                    metricsDetailsData = data.fy25_26_metrics_details || [];
+                    window.metricsDetailsData = metricsDetailsData;  // Also set on window for persistence
+                    
                     console.log('🔍 Not Reported data loaded from sample_data.json:');
                     console.log('  - FY24-25 Not Reported:', fy2425NotReportedData.length, 'rows');
                     console.log('  - FY25-26 Not Reported:', fy2526NotReportedData.length, 'rows');
+                    console.log('  - FY25-26 Metrics Details:', metricsDetailsData.length, 'performance measures');
+                    
+                    // Verify metrics data is correctly loaded
+                    if (metricsDetailsData.length > 0) {
+                        console.log('✅ Drill-down data ready! Sample entry:', {
+                            project: metricsDetailsData[0].Project,
+                            measure: metricsDetailsData[0]['Performance Measure '],
+                            april: metricsDetailsData[0]['April25 Score'],
+                            ytd: metricsDetailsData[0]['YTD Score']
+                        });
+                    } else {
+                        console.warn('⚠️ No metrics details data found in sample_data.json');
+                    }
                     if (fy2425NotReportedData.length > 0) {
                         console.log('  - Sample FY24-25 columns:', Object.keys(fy2425NotReportedData[0]));
                     }
@@ -4223,6 +4266,18 @@ let rawData = null;
                         }
                     } else {
                         console.warn('⚠️ Sheet "FY25-26 Not Reported" not found in workbook!');
+                    }
+                    
+                    // Load FY 25-26 Metrics Details for drill-down
+                    if (workbook.Sheets['FY 25-26 Metrics Details ']) {
+                        metricsDetailsData = XLSX.utils.sheet_to_json(workbook.Sheets['FY 25-26 Metrics Details ']);
+                        console.log('✅ FY 25-26 Metrics Details loaded:', metricsDetailsData.length, 'performance measures');
+                        if (metricsDetailsData.length > 0) {
+                            console.log('Sample metrics columns:', Object.keys(metricsDetailsData[0]));
+                        }
+                    } else {
+                        console.warn('⚠️ Sheet "FY 25-26 Metrics Details " not found - drill-down will not be available');
+                        metricsDetailsData = [];
                     }
                     
                     console.log('FY 24-25 rows:', fy24_25.length);
@@ -6645,8 +6700,12 @@ function showView(view) {
                 const fy25Display = data.fy25Compliance > 0 ? formatPercentageWithRAG(data.fy25Compliance) : 'N/A';
                 const changeDisplay = formatYoYChange(data.fy24Compliance, data.fy25Compliance);
                 
-                tableHTML += `<tr>
-                    <td><strong>${data.account}</strong></td>
+                const escapedAccount = data.account.replace(/'/g, "\\'");
+                tableHTML += `<tr onclick="showProjectDrilldown('${escapedAccount}')" style="cursor: pointer; transition: background 0.2s ease;" 
+                    onmouseover="this.style.background='var(--sidebar-hover)'" 
+                    onmouseout="this.style.background=''"
+                    title="Click to view detailed performance measures">
+                    <td><strong>${data.account} <i class="bi bi-box-arrow-up-right" style="font-size: 0.75em; color: var(--primary-color); margin-left: 5px;"></i></strong></td>
                     <td>${data.region}</td>
                     <td>${data.practice}</td>
                     <td>${fy24Display}</td>
@@ -7374,13 +7433,14 @@ function showView(view) {
                             <a href="#section-overview" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>1.</strong> Dashboard Overview</a>
                             <a href="#section-calculation" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>2.</strong> Calculation Methodology</a>
                             <a href="#section-navigation" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>3.</strong> Navigation Guide</a>
-                            <a href="#section-filters" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>4.</strong> Using Filters</a>
+                            <a href="#section-drilldown" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #ff6b35;"><strong>4.</strong> ✨ Project Drill-Down (NEW!)</a>
+                            <a href="#section-filters" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>5.</strong> Using Filters</a>
                         </div>
                         <div>
-                            <a href="#section-audio" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>5.</strong> Audio Features</a>
-                            <a href="#section-export" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>6.</strong> Export Options</a>
-                            <a href="#section-faq" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>7.</strong> FAQ</a>
-                            <a href="#section-bestpractices" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>8.</strong> Best Practices</a>
+                            <a href="#section-audio" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>6.</strong> Audio Features</a>
+                            <a href="#section-export" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>7.</strong> Export Options</a>
+                            <a href="#section-faq" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>8.</strong> FAQ</a>
+                            <a href="#section-bestpractices" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>9.</strong> Best Practices</a>
                         </div>
                     </div>
                 </div>
@@ -7391,6 +7451,7 @@ function showView(view) {
                     
                     <h4 style="margin-top: 20px; color: var(--primary-color);">Key Features</h4>
                     <ul style="line-height: 2; margin-left: 20px;">
+                        <li><strong>✨ Project Drill-Down (NEW!):</strong> Click any project to view detailed month-by-month performance measures with exact Excel values</li>
                         <li><strong>Multi-Year Comparison:</strong> Compare FY 24-25 with FY 25-26 performance</li>
                         <li><strong>Interactive Filters:</strong> Filter by fiscal year, region, practice head, account, and month</li>
                         <li><strong>Audio Descriptions:</strong> Enable audio narration in English or Hindi</li>
@@ -7521,7 +7582,7 @@ function showView(view) {
                             <tr>
                                 <td><strong>Project Analysis</strong></td>
                                 <td><i class="bi bi-building"></i></td>
-                                <td>Account-wise performance with trend indicators</td>
+                                <td>Account-wise performance with trend indicators<br/><em style="color: #ff6b35; font-size: 0.9em;">✨ Click any project row to view detailed performance measures (drill-down)</em></td>
                             </tr>
                             <tr>
                                 <td><strong>Regional Analysis</strong></td>
@@ -7540,6 +7601,75 @@ function showView(view) {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                
+                <div class="card animated-card" style="animation-delay: 0.25s; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #ff6b35;" id="section-drilldown">
+                    <h3 style="color: #92400e;"><i class="bi bi-clipboard-data"></i> ✨ Project Drill-Down Feature (NEW!)</h3>
+                    <p style="color: #78350f; font-size: 1.05em; margin-bottom: 20px;">Click any project in the <strong>Project Analysis</strong> view to see detailed month-by-month performance measures along with metrics.</p>
+                    
+                    <h4 style="margin-top: 20px; color: #ff6b35;">🎯 What You'll See:</h4>
+                    <ul style="line-height: 2; margin-left: 20px; color: #78350f;">
+                        <li><strong>Performance Measures:</strong> All measures for the selected project from the "FY 25-26 Metrics Details" sheet</li>
+                        <li><strong>Penalty Status:</strong> Each measure clearly marked as "Penalty" (⚠️) or "Non-Penalty" (✓) with color coding</li>
+                        <li><strong>Monthly Scores:</strong> Exact values (e.g., 100%, 95.5%) as they appear in your Excel file - Apr'25 through Oct'25</li>
+                        <li><strong>Status Indicators:</strong> Color-coded cells showing Met (green), Not Met (red), or NA/Not Reported (gray)</li>
+                        <li><strong>YTD Summary:</strong> Year-to-date score and status with highlighted column</li>
+                        <li><strong>Entity Grouping:</strong> For multi-entity projects, all entities are grouped together with colorful headers</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px; color: #ff6b35;">📊 How to Use:</h4>
+                    <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <ol style="line-height: 2.2; margin-left: 20px; color: #78350f;">
+                            <li>Navigate to <strong>Project Analysis</strong> view from the sidebar</li>
+                            <li>Scroll to the "Account-Wise FY Comparison" table</li>
+                            <li><strong>Click on any project/account row</strong> (you'll see a <i class="bi bi-box-arrow-up-right" style="color: #ff6b35;"></i> icon on hover)</li>
+                            <li>A modal window will open with the detailed performance measures table</li>
+                            <li>Review the month-by-month performance and YTD summary</li>
+                            <li>Click the <strong>Close</strong> button or press <strong>ESC</strong> to return to the table</li>
+                        </ol>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px; color: #ff6b35;">💡 Special Features:</h4>
+                    <table style="margin-top: 15px; background: white;">
+                        <thead>
+                            <tr style="background: #ff6b35; color: white;">
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Penalty Status</strong></td>
+                                <td>Each measure shows Penalty or Non-Penalty status</td>
+                                <td>⚠️ Penalty (red), ✓ Non-Penalty (green)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exact Values</strong></td>
+                                <td>Shows values exactly as in Excel (16% not 0.16)</td>
+                                <td>100%, 95.5%, 80%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Color Coding</strong></td>
+                                <td>Visual status indicators for quick assessment</td>
+                                <td>✓ Met (green), ✗ Not Met (red), - NA (gray)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multi-Entity Support</strong></td>
+                                <td>Aggregates all entities for multi-entity projects</td>
+                                <td>Groups related entities with colorful headers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auto-Load</strong></td>
+                                <td>Data loads automatically - no manual upload needed!</td>
+                                <td>All performance measures ready on page load</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #3b82f6;">
+                        <p style="margin: 0; color: #1e40af;"><i class="bi bi-info-circle-fill"></i> <strong>Note:</strong> The drill-down feature uses data from the "FY 25-26 Metrics Details" sheet. If you upload your own Excel file, make sure it includes this sheet for drill-down to work.</p>
+                    </div>
                 </div>
                 
                 <div class="card animated-card" style="animation-delay: 0.3s;" id="section-filters">
@@ -9511,10 +9641,236 @@ function showView(view) {
             }, 10);
         }
 
-        // Close drill-down modal
+        // Project Drill-Down: Show detailed performance measures
+        function showProjectDrilldown(projectName) {
+            console.log('🔍 Opening drill-down for:', projectName);
+            console.log('📊 metricsDetailsData available:', metricsDetailsData ? metricsDetailsData.length : 0, 'measures');
+            console.log('📊 window.metricsDetailsData available:', window.metricsDetailsData ? window.metricsDetailsData.length : 0, 'measures');
+            
+            // Use window.metricsDetailsData as fallback to ensure data persistence
+            const dataSource = metricsDetailsData && metricsDetailsData.length > 0 ? metricsDetailsData : window.metricsDetailsData;
+            
+            if (!dataSource || dataSource.length === 0) {
+                console.error('❌ Drill-down failed: metricsDetailsData is empty or null');
+                console.error('   metricsDetailsData:', metricsDetailsData);
+                console.error('   window.metricsDetailsData:', window.metricsDetailsData);
+                alert('⚠️ Detailed metrics data not available. Please upload the updated Excel file with "FY 25-26 Metrics Details" sheet.');
+                return;
+            }
+            
+            // Use dataSource instead of metricsDetailsData throughout the function
+            metricsDetailsData = dataSource;
+            
+            // For Pfizer - aggregate all Pfizer entities
+            let projectData;
+            if (projectName === 'Pfizer') {
+                projectData = metricsDetailsData.filter(row => 
+                    row.Project && row.Project.toLowerCase().includes('pfizer')
+                );
+            }
+            // For WTW - aggregate all WTW entities  
+            else if (projectName.includes('WTW')) {
+                projectData = metricsDetailsData.filter(row =>
+                    row.Project && row.Project.includes('WTW')
+                );
+            }
+            // For other projects - match with trimmed names (handles trailing spaces)
+            else {
+                projectData = metricsDetailsData.filter(row => 
+                    row.Project && row.Project.trim() === projectName.trim()
+                );
+            }
+            
+            console.log(`📊 Found ${projectData ? projectData.length : 0} measures for "${projectName}"`);
+            
+            if (!projectData || projectData.length === 0) {
+                console.error(`❌ No data found for "${projectName}"`);
+                console.error('Available projects:', [...new Set(metricsDetailsData.map(r => r.Project))].slice(0, 10));
+                alert(`ℹ️ No detailed performance measures found for "${projectName}".\n\nThis could mean:\n• The project is not in the FY 25-26 Metrics Details sheet\n• The project name doesn't match exactly`);
+                return;
+            }
+            
+            // Build drill-down HTML
+            let html = `
+                <div style="background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%); padding: 20px; border-radius: 8px; margin-bottom: 30px; color: white;">
+                    <h3 style="margin: 0 0 10px 0; color: white;"><i class="bi bi-bar-chart-line"></i> Performance Measures Overview</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <div>
+                            <small style="opacity: 0.9;">Total Measures</small>
+                            <div style="font-size: 1.5em; font-weight: bold;">${projectData.length}</div>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.9;">Region</small>
+                            <div style="font-size: 1.2em; font-weight: 600;">${projectData[0].Region}</div>
+                        </div>
+                        <div>
+                            <small style="opacity: 0.9;">Practice Head</small>
+                            <div style="font-size: 1.2em; font-weight: 600;">${projectData[0]['Practice Head']}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <table style="font-size: 0.85em; width: 100%;">
+                        <thead>
+                            <tr style="position: sticky; top: 0; background: var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
+                                <th style="min-width: 250px; text-align: left; padding: 12px 15px;">Performance Measure</th>
+                                <th style="min-width: 100px;">Penalty</th>
+                                <th style="min-width: 80px;">Target</th>
+                                <th style="min-width: 90px;">Apr'25</th>
+                                <th style="min-width: 90px;">May'25</th>
+                                <th style="min-width: 90px;">Jun'25</th>
+                                <th style="min-width: 90px;">Jul'25</th>
+                                <th style="min-width: 90px;">Aug'25</th>
+                                <th style="min-width: 90px;">Sep'25</th>
+                                <th style="min-width: 90px;">Oct'25</th>
+                                <th style="min-width: 100px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">YTD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            // Group by entity if Pfizer or WTW
+            if (projectName === 'Pfizer' || projectName.includes('WTW')) {
+                const entityGroups = {};
+                projectData.forEach(row => {
+                    const entity = row.Project;
+                    if (!entityGroups[entity]) entityGroups[entity] = [];
+                    entityGroups[entity].push(row);
+                });
+                
+                Object.keys(entityGroups).sort().forEach((entity, idx) => {
+                    const colors = [
+                        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+                    ];
+                    const entityColor = colors[idx % colors.length];
+                    
+                    html += `
+                        <tr style="background: ${entityColor}; color: white;">
+                            <td colspan="10" style="font-weight: bold; padding: 12px 15px; font-size: 1.05em;">
+                                <i class="bi bi-building-fill"></i> ${entity} (${entityGroups[entity].length} measures)
+                            </td>
+                        </tr>
+                    `;
+                    
+                    entityGroups[entity].forEach(measure => {
+                        html += generateMeasureRow(measure);
+                    });
+                });
+            } else {
+                projectData.forEach(measure => {
+                    html += generateMeasureRow(measure);
+                });
+            }
+            
+            html += '</tbody></table></div>';
+            
+            document.getElementById('drilldownTitle').innerHTML = 
+                `<i class="bi bi-clipboard-data"></i> ${projectName} - Detailed Performance Metrics (FY 25-26)`;
+            document.getElementById('drilldownContent').innerHTML = html;
+            document.getElementById('drilldownPanel').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function generateMeasureRow(measure) {
+            const months = [
+                {name: 'April', scoreCol: 'April25 Score', statusCol: 'April MET/NOT_MET'},
+                {name: 'May', scoreCol: 'May25 Score', statusCol: 'May MET/NOT_MET'},
+                {name: 'June', scoreCol: 'June25 Score', statusCol: 'June MET/NOT_MET'},
+                {name: 'July', scoreCol: 'July25 Score', statusCol: 'July MET/NOT_MET'},
+                {name: 'Aug', scoreCol: 'Aug25 Score', statusCol: 'Aug MET/NOT_MET'},
+                {name: 'Sep', scoreCol: 'Sep25 Score', statusCol: 'Sep MET/NOT_MET'},
+                {name: 'Oct', scoreCol: 'Oct25 Score', statusCol: 'Oct MET/NOT_MET'}
+            ];
+            
+            // Determine penalty status and styling
+            const penalty = measure['Penalty'] || 'No';
+            const isPenalty = penalty === 'Yes';
+            const penaltyBg = isPenalty ? '#fee2e2' : '#d1fae5';
+            const penaltyColor = isPenalty ? '#991b1b' : '#065f46';
+            const penaltyIcon = isPenalty ? '⚠️' : '✓';
+            const penaltyText = isPenalty ? 'Penalty' : 'Non-Penalty';
+            
+            let row = `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="text-align: left; padding: 12px 15px; font-weight: 500;">
+                        ${measure['Performance Measure '] || '-'}
+                    </td>
+                    <td style="background: ${penaltyBg}; color: ${penaltyColor}; text-align: center; padding: 12px 8px; font-weight: 600;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                            <span style="font-size: 1.1em;">${penaltyIcon}</span>
+                            <span>${penaltyText}</span>
+                        </div>
+                    </td>
+                    <td style="text-align: center; padding: 12px 8px;">${measure['Target'] || '-'}</td>
+            `;
+            
+            months.forEach(month => {
+                const score = measure[month.scoreCol] || '-';
+                const status = measure[month.statusCol] || '-';
+                
+                const bgColor = status === 'Met' ? '#d1fae5' : 
+                               status === 'Not Met' ? '#ffe4e6' : 
+                               status === 'NA' || status === 'Not Reported' ? '#f3f4f6' :
+                               '#fff';
+                const textColor = status === 'Met' ? '#065f46' :
+                                 status === 'Not Met' ? '#991b1b' :
+                                 '#6b7280';
+                const icon = status === 'Met' ? '✓' : 
+                            status === 'Not Met' ? '✗' : 
+                            status === 'NA' || status === 'Not Reported' ? '-' : '';
+                
+                row += `
+                    <td style="background: ${bgColor}; color: ${textColor}; text-align: center; padding: 8px; font-weight: 500;">
+                        <div style="font-size: 0.95em;">${score}</div>
+                        <small style="font-size: 0.7em; display: block; margin-top: 2px;">${icon} ${status}</small>
+                    </td>
+                `;
+            });
+            
+            // YTD column
+            const ytdScore = measure['YTD Score'] || '-';
+            const ytdStatus = measure['YTD MET/NOT_MET'] || '-';
+            const ytdBg = ytdStatus === 'Met' ? '#dbeafe' : 
+                          ytdStatus === 'Not Met' ? '#fee2e2' : 
+                          ytdStatus === 'NA' || ytdStatus === 'Not Reported' ? '#f3f4f6' :
+                          '#fff';
+            const ytdColor = ytdStatus === 'Met' ? '#1e40af' :
+                             ytdStatus === 'Not Met' ? '#991b1b' :
+                             '#6b7280';
+            const ytdIcon = ytdStatus === 'Met' ? '✓' : 
+                           ytdStatus === 'Not Met' ? '✗' : 
+                           ytdStatus === 'NA' || ytdStatus === 'Not Reported' ? '-' : '';
+            
+            row += `
+                    <td style="background: ${ytdBg}; color: ${ytdColor}; text-align: center; padding: 8px; font-weight: bold;">
+                        <div style="font-size: 1.05em;">${ytdScore}</div>
+                        <small style="font-size: 0.75em; display: block; margin-top: 2px;">${ytdIcon} ${ytdStatus}</small>
+                    </td>
+                </tr>
+            `;
+            
+            return row;
+        }
+
+        // Close drill-down modal (updated to handle both modals)
         function closeDrilldown() {
+            // Close project drill-down modal
+            const projectModal = document.getElementById('drilldownPanel');
+            if (projectModal) {
+                projectModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            // Close existing drill-down modal
             const modal = document.getElementById('drilldownModal');
-            modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // Close on outside click
