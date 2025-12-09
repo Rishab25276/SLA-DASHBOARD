@@ -9795,6 +9795,26 @@ function showView(view) {
             const penaltyIcon = isPenalty ? '⚠️' : '✓';
             const penaltyText = isPenalty ? 'Penalty' : 'Non-Penalty';
             
+            // Format Target value: convert decimals ≤ 1 to percentages, preserve strings
+            const rawTarget = measure['Target'];
+            let formattedTarget = '-';
+            if (rawTarget !== null && rawTarget !== undefined && rawTarget !== '') {
+                // Try to parse as number
+                const numericTarget = parseFloat(rawTarget);
+                if (!isNaN(numericTarget)) {
+                    // If numeric value ≤ 1, convert to percentage
+                    if (numericTarget <= 1) {
+                        formattedTarget = (numericTarget * 100) + '%';
+                    } else {
+                        // Keep as-is for values > 1 (ratings, etc.)
+                        formattedTarget = rawTarget;
+                    }
+                } else {
+                    // Not numeric, keep as string (e.g., "<33 Days", ">85%")
+                    formattedTarget = rawTarget;
+                }
+            }
+            
             let row = `
                 <tr style="border-bottom: 1px solid var(--border-color);">
                     <td style="text-align: left; padding: 12px 15px; font-weight: 500;">
@@ -9806,7 +9826,7 @@ function showView(view) {
                             <span>${penaltyText}</span>
                         </div>
                     </td>
-                    <td style="text-align: center; padding: 12px 8px;">${measure['Target'] || '-'}</td>
+                    <td style="text-align: center; padding: 12px 8px;">${formattedTarget}</td>
             `;
             
             months.forEach(month => {
