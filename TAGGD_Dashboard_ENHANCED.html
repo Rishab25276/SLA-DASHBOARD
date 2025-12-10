@@ -4175,8 +4175,9 @@ let rawData = null;
         function loadInitialData() {
             console.log('🔄 Attempting to load default data...');
             
-            // Try to load sample_data.json
-            fetch('sample_data.json')
+            // Try to load sample_data.json with cache-busting timestamp
+            const timestamp = new Date().getTime();
+            fetch(`sample_data.json?v=${timestamp}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Sample data file not found');
