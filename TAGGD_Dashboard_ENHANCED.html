@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>TAGGD - Customer SLA/KPI Performance Dashboard</title>
     
     <!-- External Libraries -->
@@ -1061,6 +1064,67 @@
 
             .menu-item span {
                 font-size: 0.9em;
+            }
+            
+            /* Mobile-responsive notification bell */
+            .notification-bell {
+                top: 15px;
+                right: 15px;
+                z-index: 1100;
+            }
+            
+            .notification-bell i {
+                font-size: 24px;
+            }
+            
+            .notification-badge {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+            }
+            
+            .notification-popup {
+                top: 55px;
+                right: 10px;
+                width: calc(100vw - 20px);
+                max-width: 380px;
+            }
+            
+            /* Mobile-responsive header */
+            .header {
+                padding: 20px 15px;
+                padding-right: 60px; /* Make room for bell icon */
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+                margin-bottom: 5px;
+            }
+            
+            .header p {
+                font-size: 0.85em;
+            }
+            
+            /* Mobile-responsive drill-down panel */
+            #drilldownPanel > div {
+                margin: 20px auto !important;
+                max-width: 98% !important;
+                padding: 15px !important;
+                max-height: calc(100vh - 40px) !important;
+            }
+            
+            #drilldownPanel #drilldownTitle {
+                font-size: 1.1em !important;
+            }
+            
+            #drilldownPanel table {
+                font-size: 0.85em;
+            }
+            
+            #drilldownPanel th,
+            #drilldownPanel td {
+                padding: 8px 4px !important;
+                font-size: 0.75em;
             }
         }
 
@@ -2439,7 +2503,7 @@
             <!-- Notification Bell Icon -->
             <div class="notification-bell" onclick="toggleNotification()">
                 <i class="bi bi-bell-fill"></i>
-                <span class="notification-badge">1</span>
+                <span class="notification-badge">2</span>
             </div>
 
             <!-- Notification Popup -->
@@ -2448,6 +2512,17 @@
                     <i class="bi bi-bell"></i> Data Update Notification
                 </div>
                 <div class="notification-body">
+                    <div class="notification-item" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #ff6b35;">
+                        <div class="notification-item-title" style="color: #92400e;">
+                            <i class="bi bi-stars"></i> ✨ NEW Feature: Project Drill-Down!
+                        </div>
+                        <div class="notification-item-content" style="color: #78350f;">
+                            Click any project in <strong>Project Analysis</strong> to view detailed month-by-month performance measures along with metrics!
+                        </div>
+                        <div class="notification-item-date" style="color: #92400e;">
+                            <i class="bi bi-book"></i> See <a href="javascript:void(0)" onclick="showView('manual'); toggleNotification();" style="color: #ff6b35; font-weight: 600;">User Manual</a> for details
+                        </div>
+                    </div>
                     <div class="notification-item">
                         <div class="notification-item-title">
                             <i class="bi bi-calendar-check"></i> Latest Data Update
@@ -3328,6 +3403,9 @@ let rawData = null;
         let audioEnabled = false;
         let musicEnabled = false;
         let backgroundMusic = null;
+        
+        // Make metricsDetailsData globally accessible for debugging
+        window.metricsDetailsData = metricsDetailsData;
 
         let audioLanguage = 'en-US'; // Default to English
         let voicesLoaded = false;
@@ -4120,11 +4198,24 @@ let rawData = null;
                     
                     // Load Metrics Details for drill-down
                     metricsDetailsData = data.fy25_26_metrics_details || [];
+                    window.metricsDetailsData = metricsDetailsData;  // Also set on window for persistence
                     
                     console.log('🔍 Not Reported data loaded from sample_data.json:');
                     console.log('  - FY24-25 Not Reported:', fy2425NotReportedData.length, 'rows');
                     console.log('  - FY25-26 Not Reported:', fy2526NotReportedData.length, 'rows');
                     console.log('  - FY25-26 Metrics Details:', metricsDetailsData.length, 'performance measures');
+                    
+                    // Verify metrics data is correctly loaded
+                    if (metricsDetailsData.length > 0) {
+                        console.log('✅ Drill-down data ready! Sample entry:', {
+                            project: metricsDetailsData[0].Project,
+                            measure: metricsDetailsData[0]['Performance Measure '],
+                            april: metricsDetailsData[0]['April25 Score'],
+                            ytd: metricsDetailsData[0]['YTD Score']
+                        });
+                    } else {
+                        console.warn('⚠️ No metrics details data found in sample_data.json');
+                    }
                     if (fy2425NotReportedData.length > 0) {
                         console.log('  - Sample FY24-25 columns:', Object.keys(fy2425NotReportedData[0]));
                     }
@@ -7406,13 +7497,14 @@ function showView(view) {
                             <a href="#section-overview" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>1.</strong> Dashboard Overview</a>
                             <a href="#section-calculation" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>2.</strong> Calculation Methodology</a>
                             <a href="#section-navigation" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>3.</strong> Navigation Guide</a>
-                            <a href="#section-filters" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>4.</strong> Using Filters</a>
+                            <a href="#section-drilldown" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #ff6b35;"><strong>4.</strong> ✨ Project Drill-Down (NEW!)</a>
+                            <a href="#section-filters" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>5.</strong> Using Filters</a>
                         </div>
                         <div>
-                            <a href="#section-audio" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>5.</strong> Audio Features</a>
-                            <a href="#section-export" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>6.</strong> Export Options</a>
-                            <a href="#section-faq" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>7.</strong> FAQ</a>
-                            <a href="#section-bestpractices" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>8.</strong> Best Practices</a>
+                            <a href="#section-audio" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>6.</strong> Audio Features</a>
+                            <a href="#section-export" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>7.</strong> Export Options</a>
+                            <a href="#section-faq" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>8.</strong> FAQ</a>
+                            <a href="#section-bestpractices" style="display: block; padding: 10px; text-decoration: none; color: #ff6b35; background: white; border-radius: 8px; margin-bottom: 8px;"><strong>9.</strong> Best Practices</a>
                         </div>
                     </div>
                 </div>
@@ -7423,6 +7515,7 @@ function showView(view) {
                     
                     <h4 style="margin-top: 20px; color: var(--primary-color);">Key Features</h4>
                     <ul style="line-height: 2; margin-left: 20px;">
+                        <li><strong>✨ Project Drill-Down (NEW!):</strong> Click any project to view detailed month-by-month performance measures with exact Excel values</li>
                         <li><strong>Multi-Year Comparison:</strong> Compare FY 24-25 with FY 25-26 performance</li>
                         <li><strong>Interactive Filters:</strong> Filter by fiscal year, region, practice head, account, and month</li>
                         <li><strong>Audio Descriptions:</strong> Enable audio narration in English or Hindi</li>
@@ -7553,7 +7646,7 @@ function showView(view) {
                             <tr>
                                 <td><strong>Project Analysis</strong></td>
                                 <td><i class="bi bi-building"></i></td>
-                                <td>Account-wise performance with trend indicators</td>
+                                <td>Account-wise performance with trend indicators<br/><em style="color: #ff6b35; font-size: 0.9em;">✨ Click any project row to view detailed performance measures (drill-down)</em></td>
                             </tr>
                             <tr>
                                 <td><strong>Regional Analysis</strong></td>
@@ -7572,6 +7665,75 @@ function showView(view) {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                
+                <div class="card animated-card" style="animation-delay: 0.25s; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #ff6b35;" id="section-drilldown">
+                    <h3 style="color: #92400e;"><i class="bi bi-clipboard-data"></i> ✨ Project Drill-Down Feature (NEW!)</h3>
+                    <p style="color: #78350f; font-size: 1.05em; margin-bottom: 20px;">Click any project in the <strong>Project Analysis</strong> view to see detailed month-by-month performance measures along with metrics.</p>
+                    
+                    <h4 style="margin-top: 20px; color: #ff6b35;">🎯 What You'll See:</h4>
+                    <ul style="line-height: 2; margin-left: 20px; color: #78350f;">
+                        <li><strong>Performance Measures:</strong> All measures for the selected project from the "FY 25-26 Metrics Details" sheet</li>
+                        <li><strong>Penalty Status:</strong> Each measure clearly marked as "Penalty" (⚠️) or "Non-Penalty" (✓) with color coding</li>
+                        <li><strong>Monthly Scores:</strong> Exact values (e.g., 100%, 95.5%) as they appear in your Excel file - Apr'25 through Oct'25</li>
+                        <li><strong>Status Indicators:</strong> Color-coded cells showing Met (green), Not Met (red), or NA/Not Reported (gray)</li>
+                        <li><strong>YTD Summary:</strong> Year-to-date score and status with highlighted column</li>
+                        <li><strong>Entity Grouping:</strong> For multi-entity projects, all entities are grouped together with colorful headers</li>
+                    </ul>
+                    
+                    <h4 style="margin-top: 20px; color: #ff6b35;">📊 How to Use:</h4>
+                    <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <ol style="line-height: 2.2; margin-left: 20px; color: #78350f;">
+                            <li>Navigate to <strong>Project Analysis</strong> view from the sidebar</li>
+                            <li>Scroll to the "Account-Wise FY Comparison" table</li>
+                            <li><strong>Click on any project/account row</strong> (you'll see a <i class="bi bi-box-arrow-up-right" style="color: #ff6b35;"></i> icon on hover)</li>
+                            <li>A modal window will open with the detailed performance measures table</li>
+                            <li>Review the month-by-month performance and YTD summary</li>
+                            <li>Click the <strong>Close</strong> button or press <strong>ESC</strong> to return to the table</li>
+                        </ol>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px; color: #ff6b35;">💡 Special Features:</h4>
+                    <table style="margin-top: 15px; background: white;">
+                        <thead>
+                            <tr style="background: #ff6b35; color: white;">
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Penalty Status</strong></td>
+                                <td>Each measure shows Penalty or Non-Penalty status</td>
+                                <td>⚠️ Penalty (red), ✓ Non-Penalty (green)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exact Values</strong></td>
+                                <td>Shows values exactly as in Excel (16% not 0.16)</td>
+                                <td>100%, 95.5%, 80%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Color Coding</strong></td>
+                                <td>Visual status indicators for quick assessment</td>
+                                <td>✓ Met (green), ✗ Not Met (red), - NA (gray)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multi-Entity Support</strong></td>
+                                <td>Aggregates all entities for multi-entity projects</td>
+                                <td>Groups related entities with colorful headers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auto-Load</strong></td>
+                                <td>Data loads automatically - no manual upload needed!</td>
+                                <td>All performance measures ready on page load</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #3b82f6;">
+                        <p style="margin: 0; color: #1e40af;"><i class="bi bi-info-circle-fill"></i> <strong>Note:</strong> The drill-down feature uses data from the "FY 25-26 Metrics Details" sheet. If you upload your own Excel file, make sure it includes this sheet for drill-down to work.</p>
+                    </div>
                 </div>
                 
                 <div class="card animated-card" style="animation-delay: 0.3s;" id="section-filters">
@@ -9546,11 +9708,22 @@ function showView(view) {
         // Project Drill-Down: Show detailed performance measures
         function showProjectDrilldown(projectName) {
             console.log('🔍 Opening drill-down for:', projectName);
+            console.log('📊 metricsDetailsData available:', metricsDetailsData ? metricsDetailsData.length : 0, 'measures');
+            console.log('📊 window.metricsDetailsData available:', window.metricsDetailsData ? window.metricsDetailsData.length : 0, 'measures');
             
-            if (!metricsDetailsData || metricsDetailsData.length === 0) {
+            // Use window.metricsDetailsData as fallback to ensure data persistence
+            const dataSource = metricsDetailsData && metricsDetailsData.length > 0 ? metricsDetailsData : window.metricsDetailsData;
+            
+            if (!dataSource || dataSource.length === 0) {
+                console.error('❌ Drill-down failed: metricsDetailsData is empty or null');
+                console.error('   metricsDetailsData:', metricsDetailsData);
+                console.error('   window.metricsDetailsData:', window.metricsDetailsData);
                 alert('⚠️ Detailed metrics data not available. Please upload the updated Excel file with "FY 25-26 Metrics Details" sheet.');
                 return;
             }
+            
+            // Use dataSource instead of metricsDetailsData throughout the function
+            metricsDetailsData = dataSource;
             
             // For Pfizer - aggregate all Pfizer entities
             let projectData;
@@ -9565,12 +9738,18 @@ function showView(view) {
                     row.Project && row.Project.includes('WTW')
                 );
             }
-            // For other projects - exact match
+            // For other projects - match with trimmed names (handles trailing spaces)
             else {
-                projectData = metricsDetailsData.filter(row => row.Project === projectName);
+                projectData = metricsDetailsData.filter(row => 
+                    row.Project && row.Project.trim() === projectName.trim()
+                );
             }
             
+            console.log(`📊 Found ${projectData ? projectData.length : 0} measures for "${projectName}"`);
+            
             if (!projectData || projectData.length === 0) {
+                console.error(`❌ No data found for "${projectName}"`);
+                console.error('Available projects:', [...new Set(metricsDetailsData.map(r => r.Project))].slice(0, 10));
                 alert(`ℹ️ No detailed performance measures found for "${projectName}".\n\nThis could mean:\n• The project is not in the FY 25-26 Metrics Details sheet\n• The project name doesn't match exactly`);
                 return;
             }
@@ -9600,6 +9779,7 @@ function showView(view) {
                         <thead>
                             <tr style="position: sticky; top: 0; background: var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;">
                                 <th style="min-width: 250px; text-align: left; padding: 12px 15px;">Performance Measure</th>
+                                <th style="min-width: 100px;">Penalty</th>
                                 <th style="min-width: 80px;">Target</th>
                                 <th style="min-width: 90px;">Apr'25</th>
                                 <th style="min-width: 90px;">May'25</th>
@@ -9671,12 +9851,33 @@ function showView(view) {
                 {name: 'Oct', scoreCol: 'Oct25 Score', statusCol: 'Oct MET/NOT_MET'}
             ];
             
+            // Determine penalty status and styling
+            const penalty = measure['Penalty'] || 'No';
+            const isPenalty = penalty === 'Yes';
+            const penaltyBg = isPenalty ? '#fee2e2' : '#d1fae5';
+            const penaltyColor = isPenalty ? '#991b1b' : '#065f46';
+            const penaltyIcon = isPenalty ? '⚠️' : '✓';
+            const penaltyText = isPenalty ? 'Penalty' : 'Non-Penalty';
+            
+            // Display Target value exactly as-is (no formatting)
+            const rawTarget = measure['Target'];
+            let formattedTarget = '-';
+            if (rawTarget !== null && rawTarget !== undefined && rawTarget !== '') {
+                formattedTarget = rawTarget;
+            }
+            
             let row = `
                 <tr style="border-bottom: 1px solid var(--border-color);">
                     <td style="text-align: left; padding: 12px 15px; font-weight: 500;">
                         ${measure['Performance Measure '] || '-'}
                     </td>
-                    <td style="text-align: center; padding: 12px 8px;">${measure['Target'] || '-'}</td>
+                    <td style="background: ${penaltyBg}; color: ${penaltyColor}; text-align: center; padding: 12px 8px; font-weight: 600;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                            <span style="font-size: 1.1em;">${penaltyIcon}</span>
+                            <span>${penaltyText}</span>
+                        </div>
+                    </td>
+                    <td style="text-align: center; padding: 12px 8px;">${formattedTarget}</td>
             `;
             
             months.forEach(month => {
