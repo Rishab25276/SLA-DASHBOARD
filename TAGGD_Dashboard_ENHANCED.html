@@ -9859,11 +9859,16 @@ function showView(view) {
             const penaltyIcon = isPenalty ? '⚠️' : '✓';
             const penaltyText = isPenalty ? 'Penalty' : 'Non-Penalty';
             
-            // Display Target value exactly as-is (no formatting)
+            // Display Target value - format percentages as Excel shows them
             const rawTarget = measure['Target'];
             let formattedTarget = '-';
             if (rawTarget !== null && rawTarget !== undefined && rawTarget !== '') {
-                formattedTarget = rawTarget;
+                // If it's a number between 0 and 1 (exclusive), likely a percentage
+                if (typeof rawTarget === 'number' && rawTarget > 0 && rawTarget < 1) {
+                    formattedTarget = (rawTarget * 100) + '%';
+                } else {
+                    formattedTarget = rawTarget;
+                }
             }
             
             let row = `
