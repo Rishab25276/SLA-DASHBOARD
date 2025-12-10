@@ -9878,9 +9878,10 @@ function showView(view) {
             if (rawTarget !== null && rawTarget !== undefined && rawTarget !== '') {
                 // If it's a number between 0 and 1 (exclusive), likely a percentage
                 if (typeof rawTarget === 'number' && rawTarget > 0 && rawTarget < 1) {
-                    // Remove trailing zeros (0.4 → 40%, not 40.00%)
-                    const percentage = (rawTarget * 100).toFixed(2);
-                    formattedTarget = parseFloat(percentage) + '%';
+                    // Smart percentage formatting: 0.4→40%, 0.4643→46.43%
+                    const percentage = rawTarget * 100;
+                    // Round to 2 decimals, then remove trailing .00
+                    formattedTarget = (Math.round(percentage * 100) / 100).toString().replace(/\.00$/, '') + '%';
                 } else {
                     formattedTarget = rawTarget;
                 }
@@ -9908,9 +9909,10 @@ function showView(view) {
                 let formattedScore = rawScore;
                 if (rawScore !== '-' && rawScore !== null && rawScore !== undefined && rawScore !== '' && rawScore !== 'NA' && rawScore !== 'Not Reported') {
                     if (typeof rawScore === 'number' && rawScore > 0 && rawScore < 1) {
-                        // Remove trailing zeros (0.4 → 40%, not 40.00%)
-                        const percentage = (rawScore * 100).toFixed(2);
-                        formattedScore = parseFloat(percentage) + '%';
+                        // Smart percentage formatting: 0.4→40%, 0.4643→46.43%
+                        const percentage = rawScore * 100;
+                        // Round to 2 decimals, then remove trailing .00
+                        formattedScore = (Math.round(percentage * 100) / 100).toString().replace(/\.00$/, '') + '%';
                     } else if (typeof rawScore === 'number') {
                         formattedScore = rawScore;
                     } else {
@@ -9945,9 +9947,10 @@ function showView(view) {
             let formattedYtdScore = rawYtdScore;
             if (rawYtdScore !== '-' && rawYtdScore !== null && rawYtdScore !== undefined && rawYtdScore !== '' && rawYtdScore !== 'NA' && rawYtdScore !== 'Not Reported') {
                 if (typeof rawYtdScore === 'number' && rawYtdScore > 0 && rawYtdScore < 1) {
-                    // Remove trailing zeros and decimal point if not needed (0.4 → 40%, not 40.00%)
-                    const percentage = (rawYtdScore * 100).toFixed(2);
-                    formattedYtdScore = parseFloat(percentage) + '%';
+                    // Smart percentage formatting: 0.4→40%, 0.4643→46.43%
+                    const percentage = rawYtdScore * 100;
+                    // Round to 2 decimals, then remove trailing .00
+                    formattedYtdScore = (Math.round(percentage * 100) / 100).toString().replace(/\.00$/, '') + '%';
                 } else if (typeof rawYtdScore === 'number') {
                     formattedYtdScore = rawYtdScore;
                 } else {
