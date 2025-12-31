@@ -7676,7 +7676,7 @@ function showView(view) {
                     <ul style="line-height: 2; margin-left: 20px; color: #78350f;">
                         <li><strong>Performance Measures:</strong> All measures for the selected project from the "FY 25-26 Metrics Details" sheet</li>
                         <li><strong>Penalty Status:</strong> Each measure clearly marked as "Penalty" (⚠️) or "Non-Penalty" (✓) with color coding</li>
-                        <li><strong>Monthly Scores:</strong> Exact values (e.g., 100%, 95.5%) as they appear in your Excel file - Apr'25 through Oct'25</li>
+                        <li><strong>Monthly Scores:</strong> Exact values (e.g., 100%, 95.5%) as they appear in your Excel file - Apr'25 through Nov'25</li>
                         <li><strong>Status Indicators:</strong> Color-coded cells showing Met (green), Not Met (red), or NA/Not Reported (gray)</li>
                         <li><strong>YTD Summary:</strong> Year-to-date score and status with highlighted column</li>
                         <li><strong>Entity Grouping:</strong> For multi-entity projects, all entities are grouped together with colorful headers</li>
@@ -9789,6 +9789,7 @@ function showView(view) {
                                 <th style="min-width: 90px;">Aug'25</th>
                                 <th style="min-width: 90px;">Sep'25</th>
                                 <th style="min-width: 90px;">Oct'25</th>
+                                <th style="min-width: 90px;">Nov'25</th>
                                 <th style="min-width: 100px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">YTD</th>
                             </tr>
                         </thead>
@@ -9862,7 +9863,8 @@ function showView(view) {
                 {name: 'July', scoreCol: 'July25 Score', statusCol: 'July MET/NOT_MET'},
                 {name: 'Aug', scoreCol: 'Aug25 Score', statusCol: 'Aug MET/NOT_MET'},
                 {name: 'Sep', scoreCol: 'Sep25 Score', statusCol: 'Sep MET/NOT_MET'},
-                {name: 'Oct', scoreCol: 'Oct25 Score', statusCol: 'Oct MET/NOT_MET'}
+                {name: 'Oct', scoreCol: 'Oct25 Score', statusCol: 'Oct MET/NOT_MET'},
+                {name: 'Nov', scoreCol: 'Nov25 Score', statusCol: 'Nov MET/NOT_MET'}
             ];
             
             // Determine penalty status and styling
